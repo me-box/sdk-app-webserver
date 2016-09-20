@@ -1,0 +1,249 @@
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.flexcontainer{			
+	display: -webkit-flex;
+   	display: flex;
+   	-webkit-flex-direction: column;
+   	flex-direction: column;
+	-webkit-animation-property: -webkit-width;
+	-webkit-animation-property: -webkit-height;
+	-webkit-transition-duration: 0.5s;
+	-moz-animation-property: -webkit-width;
+	-moz-animation-property: -webkit-height;
+	-moz-transition-duration: 0.5s;
+	-o-animation-property: -webkit-width;
+	-o-animation-property: -webkit-height;
+	-o-transition-duration: 0.5s;
+}
+
+.list{
+	min-height: 100px;
+}
+
+.chart{
+	min-height: 200px;
+}
+
+.flexitem{
+	width: 100vw;
+	border: 1px solid #626262;
+	margin: 3px;
+   	flex: 0.001;  	
+   	-webkit-animation: flexGrow 500ms ease forwards;
+    -o-animation: flexGrow 500ms ease forwards;
+    animation: flexGrow 500ms ease forwards;
+    transition: all 0.5s ease-out;
+}
+
+.flexitem-enter {
+  opacity: 1;
+}
+
+.flexitem-enter.flexitem-enter-active {
+  opacity: 1;
+}
+
+.flexitem-leave {
+  opacity: 1;
+  -webkit-animation: flexShrink 500ms ease forwards;
+  -o-animation: flexShrink 500ms ease forwards;
+  animation: flexShrink 500ms ease forwards;
+}
+
+.flexitem-leave.flexitem-leave-active {
+  opacity: 0;
+}
+
+@-webkit-keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+@-o-keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+
+@keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+
+@-webkit-keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}
+@-o-keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}
+@keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}
+
+
+/* tables stuff */
+
+table
+{
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+td,th
+{
+	padding: 0;
+}
+
+table,th,td
+{
+	border: none;
+}
+table
+{
+	display: table;
+	width: 100%;
+}
+table.bordered>thead>tr,table.bordered>tbody>tr
+{
+	border-bottom: 1px solid #d0d0d0;
+}
+table.striped>tbody>tr:nth-child(odd)
+{
+	background-color: #f2f2f2;
+}
+table.striped>tbody>tr>td
+{
+	border-radius: 0;
+}
+table.highlight>tbody>tr
+{
+	transition: background-color .25s ease;
+}
+table.highlight>tbody>tr:hover
+{
+	background-color: #f2f2f2;
+}
+table.centered thead tr th,table.centered tbody tr td
+{
+	text-align: center;
+}
+thead
+{
+	border-bottom: 1px solid #d0d0d0;
+}
+td,th
+{
+	border-radius: 2px;
+	display: table-cell;
+	padding: 15px 5px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+@media only screen and (max-width: 992px)
+{
+	table.responsive-table
+	{
+		border-collapse: collapse;
+		border-spacing: 0;
+		display: block;
+		position: relative;
+		width: 100%;
+	}
+	table.responsive-table td:empty:before
+	{
+		content: '\00a0';
+	}
+	table.responsive-table th,table.responsive-table td
+	{
+		margin: 0;
+		vertical-align: top;
+	}
+	table.responsive-table th
+	{
+		text-align: left;
+	}
+	table.responsive-table thead
+	{
+		display: block;
+		float: left;
+	}
+	table.responsive-table thead tr
+	{
+		display: block;
+		padding: 0 10px 0 0;
+	}
+	table.responsive-table thead tr th::before
+	{
+		content: "\00a0";
+	}
+	table.responsive-table tbody
+	{
+		display: block;
+		overflow-x: auto;
+		position: relative;
+		white-space: nowrap;
+		width: auto;
+	}
+	table.responsive-table tbody tr
+	{
+		display: inline-block;
+		vertical-align: top;
+	}
+	table.responsive-table th
+	{
+		display: block;
+		text-align: right;
+	}
+	table.responsive-table td
+	{
+		display: block;
+		min-height: 1.25em;
+		text-align: left;
+	}
+	table.responsive-table tr
+	{
+		padding: 0 10px;
+	}
+	table.responsive-table thead
+	{
+		border: 0;
+		border-right: 1px solid #d0d0d0;
+	}
+	table.responsive-table.bordered th
+	{
+		border-bottom: 0;
+		border-left: 0;
+	}
+	table.responsive-table.bordered td
+	{
+		border-bottom: 0;
+		border-left: 0;
+		border-right: 0;
+	}
+	table.responsive-table.bordered tr
+	{
+		border: 0;
+	}
+	table.responsive-table.bordered tbody tr
+	{
+		border-right: 1px solid #d0d0d0;
+	}
+}
+
+
+

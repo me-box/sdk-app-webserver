@@ -1,0 +1,134 @@
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html{
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  font-family: Helvetica Neue, Open Sans, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+
+.container {
+    width : 100vw;
+    height: 100vh;
+}
+
+.button{
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 9px;
+  color: #727272;
+  text-transform: uppercase;
+}
+
+.button.selected{
+  background: #d35a51;
+  color: white;
+  -webkit-box-shadow: 5px 0px 7px -3px rgba(0,0,0,0.36);
+   -moz-box-shadow: 5px 0px 7px -3px rgba(0,0,0,0.36);
+   box-shadow: 5px 0px 7px -3px rgba(0,0,0,0.36);
+}
+
+
+.container  textarea{
+  width: 100%;
+  height: inherit;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.column > .header {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  height: $TOOLBARHEIGHT;
+  background: $header-background-colour;
+  color: $header-colour;
+  text-transform: uppercase;
+  font-size: 1.2em;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.column > .contentheader {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  height: $TOOLBARHEIGHT/2;
+  background: $content-header-background-colour;
+  color: $content-header-colour;
+  text-transform: uppercase;
+  font-size: 1em;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+.column > .footer {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  height: $TOOLBARHEIGHT;
+  background: $footer-background-colour;
+  color: $footer-colour;
+  text-transform: uppercase;
+  font-size: 1.2em;
+  box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23);
+}
+
+.header a, .footer a{
+    color: white;
+}
+
+.row > .title {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  width: 180px;
+  border-right:  1px solid #b6b6b6;
+  border-left:  1px solid #b6b6b6;
+  background: #f2f2f2;
+  text-transform: uppercase;
+  font-size: 0.75em;    
+}
+
+.active {
+  background: $active;
+}
+
+.text{
+  background: #d45500;
+  color: white;
+}
+
+.bar{
+  background: #37474f;
+  color: white;
+  width: 100%;
+  height: 100%;
+}
+
+.gauge{
+   background: #00897B;
+  color: white;
+  width: 100%;
+  height: 100%;
+}
+
+.animated{
+    -webkit-transition:all 800ms ease-in-out, height 800ms ease-in-out;
+    -moz-transition:all 800ms ease-in-out, height 800ms ease-in-out;
+    -o-transition:all 800ms ease-in-out, height 800ms ease-in-out;
+    transition:all 800ms ease-in-out, height 800ms ease-in-out;
+}

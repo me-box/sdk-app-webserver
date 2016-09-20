@@ -1,0 +1,10 @@
+export const APP_MESSAGE = 'APP_MESSAGE';
+export const APP_REMOVED = 'APP_REMOVED';
+export const APP_RESET = 'APP_RESET';
+
+export const NETWORK_ACCESS = 'NETWORK_ACCESS';
+export const NETWORK_ERROR = 'NETWORK_ERROR';
+export const NETWORK_SUCCESS = 'NETWORK_SUCCESS';
+export const NETWORK_COMPLETE = 'NETWORK_COMPLETE';
+
+export const WINDOW_RESIZED = 'WINDOW_RESIZED';
