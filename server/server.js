@@ -2,7 +2,7 @@ import http  from 'http';
 import express from 'express';
 import bodyparser from 'body-parser';
 import websocketinit from './comms/websocket';
-import mqttinit from './comms/mqtt';
+import ipcinit from './comms/ipc';
 
 const app = express();
 app.use('/', express.static("static"));
@@ -17,7 +17,7 @@ if (process.argv.length > 2){
 }
 
 websocketinit(['databox'],server);
-mqttinit();
+ipcinit();
 
 app.get('/', function(req,res){
   res.render('index');
