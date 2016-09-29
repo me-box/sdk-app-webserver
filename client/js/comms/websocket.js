@@ -3,7 +3,17 @@ import {newMessage} from '../actions/AppActions';
 
 export default function init(namespace, appId, dispatch) {
   
-  const socket = io('/'+namespace, {path: '/socket.io'});
+  //deal with the reverse proxying of container manager by making socket.io path relative
+  let pathname = "";
+  const paths = window.location.pathname.split("/");
+
+  if (paths.length > 1){
+    if (paths[paths.length-2] != ""){
+       pathname = `/${paths[paths.length-2]}`;
+    }
+  }
+
+  const socket = io('/'+namespace, {path: `${pathname}/socket.io`});
  
   socket.on("connect", function(){
   	  console.log(`CALLING JOIN ON ${appId}`);
