@@ -3,7 +3,7 @@ import {newMessage} from '../actions/AppActions';
 
 export default function init(namespace, appId, dispatch) {
   
-  const socket = io('/'+namespace, {path: './socket.io'});
+  const socket = io('/'+namespace, {path: '/socket.io'});
  
   socket.on("connect", function(){
   	  console.log(`CALLING JOIN ON ${appId}`);
