@@ -13,7 +13,7 @@ import FittedText from '../components/FittedText';
 import {MAXREADINGS} from '../constants/ChartConstants';
 import * as AppActions from '../actions/AppActions';
 import {fetchChannelId} from '../actions/ChannelActions';
-
+import {windowResize} from '../actions/WindowActions';
 
 function lookup(boxes, name){
     return  boxes.reduce((acc, arr, i)=>{
@@ -32,6 +32,8 @@ class AppContent extends Component {
 	constructor(props){
 		super(props);
 		Object.assign(this, ...bindActionCreators(AppActions, props.dispatch));	
+		this.windowResize  = bindActionCreators(windowResize, props.dispatch);
+		this._handleResize = this._handleResize.bind(this);
 	} 
 	
 	componentDidMount(){
@@ -173,6 +175,12 @@ class AppContent extends Component {
 	    return <ReactCSSTransitionGroup className="container" style={flexcontainer} transitionName="flexitem" transitionEnterTimeout={500} transitionLeaveTimeout={300}>{applist}</ReactCSSTransitionGroup>
          	
 	}
+
+	 _handleResize(e){
+      const w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      const h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      this.windowResize(w,h);
+    }
 };
 
 function select(state) {

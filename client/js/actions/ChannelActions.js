@@ -10,7 +10,7 @@ export function fetchChannelId(){
 		console.log("calling fetch channel id");
 		dispatch(networkAccess(`requesting channelID`));
 		request
-		  .get(`/comms/channelID`)
+		  .get(`./comms/channelID`)
 		  .set('Accept', 'application/json')
 		  .end(function(err, res){
 			if (err){
