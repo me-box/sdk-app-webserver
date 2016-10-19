@@ -37,6 +37,7 @@ export default class Gauge extends Component {
 
         const STROKEWIDTH      = 80;
         const OUTERSTROKEWIDTH = 5;
+        const BORDERPADDING    = 30;
 		let {min,max} = data;
 		
 		
@@ -49,26 +50,196 @@ export default class Gauge extends Component {
 		}
 		
         const lines = data.data.map((items,i)=>{
-            const props = {...this.props, data:items, MIN: min, MAX: max, STROKEWIDTH:STROKEWIDTH, OUTERSTROKEWIDTH:OUTERSTROKEWIDTH}
-            return <Line key={i} {...props} p={ (STROKEWIDTH*i*2) + OUTERSTROKEWIDTH} />
+            const props = {	...this.props, 
+            				data:items, 
+            				MIN: min, 
+            				MAX: max,
+            				p: (STROKEWIDTH*i*2) + OUTERSTROKEWIDTH, 
+            				STROKEWIDTH, 
+            				OUTERSTROKEWIDTH, 
+            				BORDERPADDING
+            				
+            				}
+            return <Line key={i} {...props} />
         });
-
+        
+        let labels = [];
+        if (options.labels){
+        	var labelarray = options.labels.split(",");
+        	labels = labelarray.reduce((acc, label)=>{
+        		const [name,value] = label.split(":");
+        		if (name && value){
+        			
+        			
+        			if (value.trim() === "max"){
+        				acc.push({value:max, text:name});
+        			}
+        			else if (value.trim() === "min"){
+        				acc.push({value:min, text:name});
+        			}
+        			else if (!isNaN(parseFloat(value)) && isFinite(value)){
+        				acc.push({value:value, text:name});
+        			}
+        		}
+        		return acc;
+        	},[]);
+        }
+        
+		const markers = labels.map((marker)=>{
+			marker.value = Math.min(Math.max(min, marker.value),max);
+			return marker;
+		}).map((marker,i)=>{
+        	
+        	const from  = (i == 0) ? min : labels[i-1].value;
+        	
+        	const markerprops = {
+        		STROKEWIDTH,
+        		OUTERSTROKEWIDTH,
+        		BORDERPADDING,
+        		max,
+        		min,
+        		w,
+        		h,
+        		from: from,
+        		to: marker.value,
+        		text: marker.text,
+        	}
+        	
+        	return <Marker {...markerprops}/>
+        });
+        
+		const TITLESIZE = 30;
+		const textstyle = {
+                              textAnchor:"middle",
+                              fill: 'white',
+                              fontSize: TITLESIZE,
+                       }
 		
-        return <svg width={w} height={h}>
-                  {lines}
+		//const r = h > (w/2) ? (w-OUTERSTROKEWIDTH-STROKEWIDTH)/2 : (h-(STROKEWIDTH/2));
+        const r = h > (w/2) ? (w-OUTERSTROKEWIDTH-STROKEWIDTH)/2 : (h-(STROKEWIDTH/2));
+       
+        const textprops = {
+                                x:w/2,
+                                y:h-r-TITLESIZE-APP_TITLEBAR_HEIGHT,
+        }
+		
+        return <svg width={w} height={h}>  
+                 {lines}
+                 <g><text style={textstyle} {...textprops}> {options.title || ""} </text></g>
+                  {markers}      
                 </svg>
     }
+}
+
+
+class Marker extends Component {
+	
+	render(){
+	 
+	  const {STROKEWIDTH, OUTERSTROKEWIDTH, BORDERPADDING,  max, min, w, h, from, to, center, text} = this.props;
+	  
+	  const PADDING = OUTERSTROKEWIDTH;
+	  const FONTSIZE = 30;
+	  
+      const r = h > (w/2) ? (w-PADDING-STROKEWIDTH)/2 + BORDERPADDING - OUTERSTROKEWIDTH : (h-(STROKEWIDTH/2)) + BORDERPADDING - OUTERSTROKEWIDTH;
+	 
+	  const angle = (value)=>{
+        const divisor = max-min;
+        return Math.PI - radians((value - min)  * (180/divisor));
+      }
+      
+      
+	  const ADJUST = 0;
+	   
+      const ypos = (value)=>{
+        return h - ((r-ADJUST) * Math.sin(angle(value)));
+      }
+
+      const xpos = (value)=>{
+        return w/2 + ((r-ADJUST) * Math.cos(angle(value)));
+      }
+	
+	  const markerstyle = {
+         fill: 'red',
+         fillOpacity: 1.0,
+         stroke: '#4d4d4d',
+         strokeOpacity: 1.0,
+         strokeWidth: '3px',
+	  }
+	  
+	  const markerstyle2 = {
+         fill: 'green',
+         fillOpacity: 1.0,
+         stroke: '#4d4d4d',
+         strokeOpacity: 1.0,
+         strokeWidth: '3px',
+	  }
+	  
+	  const fromr = r-BORDERPADDING/2-ADJUST;
+	  const tor = r+BORDERPADDING/2-ADJUST;
+	  const theta = angle(from);
+	  const lineprops = {
+		  x1:w/2 + (fromr * Math.cos(theta)),
+		  y1: h - (fromr * Math.sin(theta)),
+		  x2: w/2 + (tor * Math.cos(theta)),
+		  y2: h - (tor * Math.sin(theta)),
+      }
+	  
+	 const linestyle ={
+         stroke: '#4d4d4d',
+         strokeOpacity: 1.0,
+         strokeWidth: `3px`,
+     }
+	
+		  
+    const arcstyle = {
+         fill: 'none',
+         stroke: _colourFor(text),
+         strokeOpacity: 1.0,
+         strokeWidth: `${BORDERPADDING}px`,
+    }
+      
+    
+	const xs = xpos(from);
+	const xe = xpos(to);
+	const ys = ypos(from); 
+	const ye = ypos(to);
+	
+	
+ 	const path = `M ${xs} ${ys} A ${r-ADJUST},${r-ADJUST} 0 0,1 ${xe} ${ye}`;
+	const labelr = r - (BORDERPADDING/2) + 5;
+	const texttheta = angle(from + ((to-from) / 2));
+	
+	const textstyle = {
+        textAnchor:"middle",
+        fill: 'white',
+        fontSize: `${FONTSIZE}px`,
+    }
+    
+    const textprops = {
+        x:0,
+        y:0,
+        transform: `translate(${w/2 + (labelr * Math.cos(texttheta))}, ${h -(labelr * Math.sin(texttheta))}) rotate(${90-degrees(texttheta)})`,
+    } 
+      
+    return  	<g>
+	  				
+	  				<path style={arcstyle} d={path}/>
+	  				<text style={textstyle} {...textprops}>{text}</text>
+	  				<line style={linestyle} {...lineprops} />  
+	  			</g>
+	
+	}
 }
 
 class Line extends Component {
  
   render() {
 
-     
-
-      let {MIN,MAX,data,options,w,h,p, STROKEWIDTH, OUTERSTROKEWIDTH} = this.props;
+      const {MAX,data,options,w,h,p, STROKEWIDTH, OUTERSTROKEWIDTH,BORDERPADDING} = this.props;
+	  let {MIN} = this.props;
 	  
-      const TICKCOUNT = 10;
+      const TICKCOUNT = options.ticks || 10;
       const _TICKCOUNT = TICKCOUNT + 1;
 
       
@@ -91,8 +262,7 @@ class Line extends Component {
       }
 
       const PADDING = p + OUTERSTROKEWIDTH;
-      const TOPPADDINGWIDE = p+ 10;
-      const r = h > (w/2) ? (w-PADDING-STROKEWIDTH)/2 : (h-(p/2)-(STROKEWIDTH/2));
+      const r = h > (w/2) ? (w-PADDING-STROKEWIDTH)/2 - BORDERPADDING : (h-(p/2)-(STROKEWIDTH/2) - BORDERPADDING);
 
       const x1 = r => (w- (2*r))/2;
       const x2 = r => w - (w- (2*r))/2;
@@ -101,27 +271,6 @@ class Line extends Component {
       if (MIN == MAX){
          MIN = MAX-1;
       }
-
-
-      const ticks = [...Array(_TICKCOUNT).fill(0)].map((v,tick)=>{
-
-        const theta = radians( 180/(_TICKCOUNT+1) * (tick+1));
-        
-        const linestyle ={
-         stroke: 'white',
-         strokeOpacity: 1.0,
-         strokeWidth: `30px`,
-        }
-
-        const lineprops = {
-          x1: w/2 + ((r - STROKEWIDTH/1.9) * Math.cos(theta)),
-          y1: h -   ((r - STROKEWIDTH/1.9) * Math.sin(theta)),
-          x2: w/2 + ((r + STROKEWIDTH/1.9) * Math.cos(theta)),
-          y2: h -   ((r + STROKEWIDTH/1.9) * Math.sin(theta)),
-        }
-        return <line key={tick} style={linestyle} {...lineprops}/>
-      });
-
     
       const pointerstyle = {
          fill: 'white',
@@ -148,11 +297,7 @@ class Line extends Component {
       const xpos = (value)=>{
         return w/2 + (r * Math.cos(angle(value)));
       }
-
-
-
-   
-    
+      
     const start = data.length > 1 ? Number(data[data.length-2].x) : Number(data[data.length-1].x);
     const end   = Number(data[data.length-1].x);
     
@@ -222,8 +367,6 @@ class Line extends Component {
                     <path style={outerstyle} d={d(r+STROKEWIDTH/2+OUTERSTROKEWIDTH/2)}/>
                     <path style={arcstyle} d={d(r)}/>
                     <path style={outerstyle} d={d(r-STROKEWIDTH/2-OUTERSTROKEWIDTH/2)}/>
-                    {false && ticks}
-                   
                     <TickLabels MAX={MAX} MIN={MIN} value={end} r={r} TICKCOUNT={_TICKCOUNT} STROKEWIDTH={STROKEWIDTH} w={w} h={h}/>
                      {pointer}
                     {pcircle}
@@ -290,5 +433,3 @@ class TickLabels extends Component {
           return <g>{tickcircles}</g>
     }
 }
-
-
