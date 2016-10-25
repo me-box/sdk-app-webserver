@@ -91,11 +91,12 @@ class AppContent extends Component {
 			
 				const {options,data} = app;
 			
+				console.log(app.view);
 				
 				switch (app.view){	
 				
 					case 'html':
-					
+						console.log(data.payload);	
 						dataview = <div style={{width:w, height:h}}>
 								   		<div dangerouslySetInnerHTML={{__html: data.payload}}></div>
 								   </div>
