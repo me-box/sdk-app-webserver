@@ -94,6 +94,13 @@ class AppContent extends Component {
 				
 				switch (app.view){	
 				
+					case 'html':
+					
+						dataview = <div style={{width:w, height:h}}>
+								   		<div dangerouslySetInnerHTML={{__html: data.payload}}></div>
+								   </div>
+						break;
+						
 					case 'gauge':
 						dataview = 	<Gauge {...{w: APPWIDTH, h: APPHEIGHT, options: options, data: app}} /> 	
 						break;
