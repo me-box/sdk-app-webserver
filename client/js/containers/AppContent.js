@@ -96,9 +96,9 @@ class AppContent extends Component {
 				switch (app.view){	
 				
 					case 'html':
-						console.log(data.payload);	
+						
 						dataview = <div style={{width:w, height:h}}>
-								   		<div dangerouslySetInnerHTML={{__html: data.payload}}></div>
+								   		<div dangerouslySetInnerHTML={{__html: data}}></div>
 								   </div>
 						break;
 						
