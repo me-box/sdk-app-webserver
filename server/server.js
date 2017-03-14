@@ -19,6 +19,11 @@ if (process.argv.length > 2){
 websocketinit(['databox'],server);
 ipcinit();
 
+app.get('/ui', function(req,res){
+	console.log("seen a call to ui, sending back index!");
+	res.render('index');
+});
+
 app.get('/', function(req,res){
   res.render('index');
 });
