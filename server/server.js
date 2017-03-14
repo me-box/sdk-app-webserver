@@ -14,7 +14,7 @@ var credentials = {
 	cert: HTTPS_SERVER_CERT,
 };
 
-app.use('/', express.static("static"));
+app.use('/ui', express.static("static"));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
