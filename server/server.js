@@ -33,17 +33,20 @@ websocketinit(['databox'],server);
 console.log("initing ipc");
 ipcinit();
 
-app.get('/ui', function(req,res){
-	console.log("seen a call to ui, sending back index!");
-	res.render('index');
-});
-
 app.get('/', function(req,res){
   console.log("seen a get /");
   res.render('index');
 });
 
-app.use('/ui/comms', require('./routes/comms'));
+app.get('/ui/comms/channelID', function(req,res){
+        console.log("seen an incoming comms request!!");
+        res.send({channelID:'testApp'});         
+});   
+
+app.get('/ui', function(req,res){
+	console.log("seen a call to ui, sending back index!");
+	res.render('index');
+});
 
 //redirect any failed routes to root
 app.use(function(req,res){

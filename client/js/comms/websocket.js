@@ -12,9 +12,8 @@ export default function init(namespace, appId, dispatch) {
        pathname = `/${paths[paths.length-2]}`;
     }
   }
-
-  pathname = "/ui"
-  const socket = io('/'+namespace, {path: `${pathname}/socket.io`});
+  
+  const socket = io('/'+namespace, {path: `${pathname}/ui/socket.io`});
  
   socket.on("connect", function(){
   	  console.log(`CALLING JOIN ON ${appId}`);

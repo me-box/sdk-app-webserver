@@ -4,8 +4,7 @@ let connected = {};
 
 export default function init(nsps, server){
 
-    const io = socket(server, {path: '/ui'}).listen(server);
-  
+    const io = socket({path: "/ui/socket.io"}).listen(server);
 
     nsps.forEach(function(namespace){
       var nsp = io.of('/'+namespace);
