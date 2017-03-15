@@ -14,7 +14,7 @@ var credentials = {
 	cert: HTTPS_SERVER_CERT,
 };
 
-app.use('/ui', express.static("static"));
+app.use('/', express.static("static"));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
@@ -43,7 +43,7 @@ app.get('/', function(req,res){
   res.render('index');
 });
 
-app.use('/comms', require('./routes/comms'));
+app.use('/ui/comms', require('./routes/comms'));
 
 //redirect any failed routes to root
 app.use(function(req,res){
