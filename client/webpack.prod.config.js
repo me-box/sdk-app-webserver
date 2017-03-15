@@ -8,7 +8,8 @@ module.exports = {
 
     output: {
 
-        path: __dirname + "/static/ui",
+        //path: __dirname + "/static/",
+        path: "../server/static/ui",
         publicPath: 'http://127.0.0.1:8080',
         filename: '[name].js'
     },

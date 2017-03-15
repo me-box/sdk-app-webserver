@@ -13,6 +13,7 @@ export default function init(namespace, appId, dispatch) {
     }
   }
 
+  pathname = "/ui"
   const socket = io('/'+namespace, {path: `${pathname}/socket.io`});
  
   socket.on("connect", function(){

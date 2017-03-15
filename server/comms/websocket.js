@@ -2,10 +2,9 @@ import socket from 'socket.io';
 let _namespaces = {};
 let connected = {};
 
-
 export default function init(nsps, server){
 
-    const io = socket.listen(server);
+    const io = socket(server, {path: '/ui'}).listen(server);
   
 
     nsps.forEach(function(namespace){
