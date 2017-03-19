@@ -5,6 +5,7 @@ export default function init(namespace, appId, dispatch) {
   
   //deal with the reverse proxying of container manager by making socket.io path relative
   let pathname = "";
+  
   const paths = window.location.pathname.split("/");
 
   if (paths.length > 1){
