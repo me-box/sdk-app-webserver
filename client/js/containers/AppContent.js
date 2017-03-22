@@ -98,7 +98,7 @@ class AppContent extends Component {
 					case 'html':
 						
 						dataview = <div style={{width:w, height:h}}>
-								   		<div style={{width:'inherit', height'inherit'}} dangerouslySetInnerHTML={{__html: data}}></div>
+								   		<div style={{width:'inherit', height:'inherit'}} dangerouslySetInnerHTML={{__html: data}}></div>
 								   </div>
 						break;
 						
@@ -170,7 +170,7 @@ class AppContent extends Component {
 								</div>
 							</div> }
 							<div key={`${appkey}${sourcekey}`} style={style}>
-								<div key={i} className={classname}>
+								<div style={{width:"inherit", height:"inherit"}} key={i} className={classname}>
 									{dataview}
 								</div>		
 					   		</div>
