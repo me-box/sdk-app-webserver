@@ -98,7 +98,7 @@ class AppContent extends Component {
 					case 'html':
 						
 						dataview = <div style={{width:w, height:h}}>
-								   		<div dangerouslySetInnerHTML={{__html: data}}></div>
+								   		<div style={{width:'inherit', height'inherit'}} dangerouslySetInnerHTML={{__html: data}}></div>
 								   </div>
 						break;
 						
