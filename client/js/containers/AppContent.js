@@ -9,6 +9,7 @@ import List from '../components/List';
 import Chart from '../components/Chart';
 import Gauge from '../components/Gauge';
 import FittedText from '../components/FittedText';
+import UIBuilder from '../components/UIBuilder';
 
 import {MAXREADINGS} from '../constants/ChartConstants';
 import * as AppActions from '../actions/AppActions';
@@ -95,6 +96,10 @@ class AppContent extends Component {
 				
 				switch (app.view){	
 				
+					case 'uibuilder':
+						dataview = 	<UIBuilder {...{w: APPWIDTH, h: APPHEIGHT, options: options, data: app}} />
+						break;
+
 					case 'html':
 						
 						dataview = <div style={{width:w, height:h}}>
@@ -122,8 +127,6 @@ class AppContent extends Component {
 							console.log("props are");
 							console.log(props);
 							dataview = <List {...props}/>
-						}else{
-							console.log("NOT R+CREATYEING LIST");
 						}
 						break;
 			
