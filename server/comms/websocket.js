@@ -37,7 +37,7 @@ export default function init(nsps, server){
 
 export function sendmessages(rooms, namespace, event, message){
   rooms.forEach(function(room){
-      console.log(`sending to room ${room} namespace ${namespace}`);
+      //console.log(`sending to room ${room} namespace ${namespace}`);
       this.sendmessage(room,namespace,event,message);
   }.bind(this));
   return rooms.length;
@@ -45,7 +45,7 @@ export function sendmessages(rooms, namespace, event, message){
 
 export function sendmessage(room, namespace, event, message){
       if (_namespaces[namespace]){
-        console.log(`sending to room ${room} namespace ${namespace}`);
+        //console.log(`sending to room ${room} namespace ${namespace}`);
         _namespaces[namespace].to(room).emit(event, message);
       }
 };
