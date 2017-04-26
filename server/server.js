@@ -7,18 +7,20 @@ import ipcinit from './comms/ipc';
 import {lookup} from './datastore';
 const app = express();
 
+
 var HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
 var HTTPS_SERVER_PRIVATE_KEY = process.env.HTTPS_SERVER_PRIVATE_KEY || '';
 
-var credentials = {
-  key:  HTTPS_SERVER_PRIVATE_KEY,
-  cert: HTTPS_SERVER_CERT,
-};
 
+var credentials = {
+	 key:  HTTPS_SERVER_PRIVATE_KEY,
+	 cert: HTTPS_SERVER_CERT,
+};
 
 app.use('/', express.static("static"));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
+
 
 const server = https.createServer(credentials, app);  
 
@@ -50,8 +52,9 @@ app.get('/ui', function(req,res){
 });
 
 app.get('/ui/init/:id', function(req,res){
- 
+
   const result = lookup(req.params.id);
+
   if (result){
     res.send({success:true, init:result});
   }
