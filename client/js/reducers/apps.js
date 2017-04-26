@@ -4,16 +4,16 @@ const addGaugeData = (state, action) =>{
 	switch (action.type){
 
 		case APP_MESSAGE:
-			
-			const idx = state.data.map(t=>{return t[0].id}).indexOf(action.values.id);
+			const {options, values} = action.data;
+
+			const idx = state.data.map(t=>{return t[0].id}).indexOf(values.id);
 
 			if (idx == -1){
-				return [...state.data, [action.values]]
+				return [...state.data, [values]]
 			}
 			
-			const newdata = [state.data[idx][state.data[idx].length-1], action.values];
+			const newdata = [state.data[idx][state.data[idx].length-1], values];
 			return [...state.data.slice(0,idx), newdata, ...state.data.slice(idx+1)];
-			return state;
 			
 		default:
 			return state;
@@ -21,26 +21,30 @@ const addGaugeData = (state, action) =>{
 }
 
 const append = (state = {data:[]}, action)=>{
-	return (Object.assign({}, ...state, {data: [...state.data || [], action.values], options: action.options, view:action.view, sourceId: action.sourceId, id: action.id, name: action.name}));
+	const {options, values} = action.data;
+	return (Object.assign({}, ...state, {data: [...state.data || [], values], options: options, view:action.view, sourceId: action.sourceId, id: action.id, name: action.name}));
 }
 
 const replace = (state = {data:{}}, action)=>{
-	return (Object.assign({}, ...state, {data: action.values, options: action.options, view: action.view, sourceId: action.sourceId, id:action.id, name:action.name}));
+	const {options, values} = action.data;
+	return (Object.assign({}, ...state, {data: values, options: options, view: action.view, sourceId: action.sourceId, id:action.id, name:action.name}));
 }
 
 const gauge = (state = {data:[], min:999999, max:-999999}, action)=>{
   
   switch (action.type) {
   	case APP_MESSAGE:
-  		if (action.values.type === "data"){ //TODO HANDLE INIT TYPES!
+  		const {values, options} = action.data;
+
+  		if (values.type === "data"){ //TODO HANDLE INIT TYPES!
     		return Object.assign({}, ...state, {	data: addGaugeData(state, action),
-    												options: action.options,
+    												options: options,
 													view: action.view,
 													id: action.id,
 													sourceId: action.sourceId,
 													name: action.name,
-													min:  Math.min(Number(action.values.x), state.min),
-													max:  Math.max(Number(action.values.x), state.max),
+													min:  Math.min(Number(values.x), state.min),
+													max:  Math.max(Number(values.x), state.max),
     									    });
     	}
     	return state;
