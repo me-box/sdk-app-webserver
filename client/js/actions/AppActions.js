@@ -17,7 +17,7 @@ export function init(id){
   return function (dispatch, getState) {
   
     dispatch(networkAccess(`initing`));
-    console.log(`- calling ./ui/init/${id}`);
+    console.log(`- calling ./ui/init/${id} -`);
     request
       .get(`./ui/init/${id}`)
       .set('Accept', 'application/json')
@@ -61,7 +61,7 @@ export function newMessage(msg) {
 
     if (!inited[id]){
         inited[id] = true;
-        console.log("dispatching init");
+        console.log("-* dispatching init");
         dispatch(init(id));
     }
 

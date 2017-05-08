@@ -41,17 +41,13 @@ app.get('/', function(req,res){
 });
 
 app.get('/ui/comms/channelID', function(req,res){
-        console.log("seen an incoming comms request!!");
-        res.send({channelID:'testApp'});         
-});   
-
-app.get('/ui', function(req,res){
-	console.log("seen a call to ui, sending back index!");
-	res.render('index');
+    console.log("seen an incoming comms request!!");
+    res.send({channelID:'testApp'});         
 });
 
 app.get('/ui/init/:id', function(req,res){
-
+  
+  console.log("seen an init for id " + req.params.id);
   const result = lookup(req.params.id);
 
   if (result){
@@ -60,7 +56,14 @@ app.get('/ui/init/:id', function(req,res){
   else{
     res.send({success:false});
   }
+});   
+
+app.get('/ui', function(req,res){
+	console.log("seen a call to ui, sending back index!");
+	res.render('index');
 });
+
+
 
 //redirect any failed routes to root
 app.use(function(req,res){

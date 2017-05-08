@@ -9,7 +9,7 @@ export function fetchChannelId(){
 	return function (dispatch, getState) {
 		console.log("calling fetch channel id");
 		dispatch(networkAccess(`requesting channelID`));
-		console.log("** calling ./ui/comms/channelID");
+		console.log("** calling ./ui/comms/channelID **");
 		request
 		  .get(`./ui/comms/channelID`)
 		  .set('Accept', 'application/json')
@@ -18,7 +18,7 @@ export function fetchChannelId(){
 			  console.log(err);
 			  dispatch(networkError(`failed to fetch channelID`));
 			}else{
-			
+			  console.log("successfully received channel ID!");
 			  dispatch(networkSuccess(`successfully received channelID`));
 			  init("databox",res.body.channelID, dispatch);
 			}
