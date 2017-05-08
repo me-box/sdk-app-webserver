@@ -12,6 +12,34 @@ export function appRemoved(appId) {
   };
 }
 
+export function init(id){
+  
+  return function (dispatch, getState) {
+  
+    dispatch(networkAccess(`initing`));
+    console.log(`calling ./ui/init/${id}`);
+    request
+      .get(`/ui/init/${id}`)
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+      if (err){
+        console.log(err);
+        dispatch(networkError(`failed init`));
+      }else{
+      
+        dispatch(networkSuccess(`successfully inited!`));
+        console.log(res.body);
+
+        if (res.body.init){
+            dispatch({
+              type: APP_INIT,
+              data: res.body.init,
+            });
+        }
+      }
+     });
+  }
+}
 
 export function newMessage(msg) {
   
@@ -39,7 +67,7 @@ export function newMessage(msg) {
     //TODO - this is a special case for uibuilder -  make standard
 
     if (view === "uibuilder"){
-        
+
         const state = getState().uibuilder[sourceId];
        
         if (state && state.mappings){
