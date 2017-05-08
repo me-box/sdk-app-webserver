@@ -61,6 +61,7 @@ export function newMessage(msg) {
 
     if (!inited[id]){
         inited[id] = true;
+        console.log("dispatching init");
         dispatch(init(id));
     }
 
