@@ -18,14 +18,14 @@ const _interpolatedStyles = interpolatedStyles.bind(null,styles,types);
 
 const selector = createStructuredSelector({
   node : (state, ownProps)=>{
-    return state.uibuilder.nodesById[ownProps.id]
+    return state.uibuilder[ownProps.sourceId].nodesById[ownProps.id]
   },
 });
 
 @connect(selector)
 export default class Group extends PureComponent {
 
-	renderChildren(children, path){
+	renderChildren(sourceId, children){
 
 		//const {onSelect} = this.props;
 		const {nodesById} = this.props;
@@ -33,29 +33,34 @@ export default class Group extends PureComponent {
 		return children.map((key)=>{
 			
 			const item = nodesById[key];
+			
+			const shapeprops = {
+				id: item.id,
+				sourceId: sourceId,
+			}
 
 			switch(item.type){
 				
 				case "circle":
-					return <Circle key={item.id} id={item.id}/>
+					return <Circle key={item.id} {...shapeprops}/>
 			 	
 			 	case "ellipse":
-					return <Ellipse key={item.id} id={item.id}/>
+					return <Ellipse key={item.id} {...shapeprops}/>
 
 				case "rect":
-					return <Rect key={item.id} id={item.id}/>
+					return <Rect key={item.id} {...shapeprops}/>
 
 				case "text":
-					return <Text key={item.id} id={item.id}/>
+					return <Text key={item.id} {...shapeprops}/>
 
 				case "line":
-					return <Line key={item.id} id={item.id}/>
+					return <Line key={item.id} {...shapeprops}/>
 
 			 	case "path":
-					return <Path key={item.id} id={item.id}/>
+					return <Path key={item.id} {...shapeprops}/>
 
 				case "group":
-					return <Group key={item.id} {...{...this.props, ...{id:item.id}}}/>
+					return <Group key={item.id} {...{...this.props, ...{id:item.id, sourceId}}}/>
 					
 				default:
 					return null;
@@ -69,7 +74,7 @@ export default class Group extends PureComponent {
 
 	render(){
 
-		const {id, nodesById} = this.props;		
+		const {id, nodesById, sourceId} = this.props;		
 		const node = nodesById[id];
 		const {x=0, y=0, width, height, style, transform="translate(0,0)", children} = node;
 
@@ -95,7 +100,7 @@ export default class Group extends PureComponent {
 	 					const _s = Object.assign({},_style,interpolatedStyles);
 	 					const _transform = `translate(${x}, ${y}) scale(${scale}) rotate(${degrees},${cx},${cy})`;
 	 					return <g transform={`${_transform}`} style={_s}>
-	 						{this.renderChildren(children)}
+	 						{this.renderChildren(sourceId, children)}
 	 					</g>								
 	 					
 				 	}}	 

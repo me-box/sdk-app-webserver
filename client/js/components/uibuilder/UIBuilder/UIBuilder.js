@@ -15,33 +15,41 @@ class UIBuilder extends Component {
     dispatch(init(sourceId));
   }
 
-  renderNode(node){
+  renderNode(sourceId, node){
+     
      
       const {nodesById} = this.props;
+
+
+      const shapeprops = {
+        id: node.id,
+        sourceId,
+      }
 
       switch(node.type){
           
           case "circle":
-            return <Circle key={node.id} id={node.id}/>
+            return <Circle key={node.id} {...shapeprops}/>
 
           case "ellipse":
-            return <Ellipse key={node.id} id={node.id}/>
+            return <Ellipse key={node.id} {...shapeprops}/>
 
           case "rect":
-            return <Rect key={node.id} id={node.id}/>
+            return <Rect key={node.id} {...shapeprops}/>
           
           case "text":
-            return <Text key={node.id} id={node.id}/>
+            return <Text key={node.id} {...shapeprops}/>
 
           case "path":
-            return <Path key={node.id} id={node.id}/>
+            return <Path key={node.id} {...shapeprops}/>
           
           case "line":
-            return <Line key={node.id} id={node.id}/>
+            return <Line key={node.id} {...shapeprops}/>
 
           case "group":
             return <Group key={node.id} {...{
                 id: node.id,
+                sourceId,
                 nodesById,
             }}/>
 
@@ -51,10 +59,13 @@ class UIBuilder extends Component {
 
   renderNodes(){
       //eventually can just pass in the id, and nodes will do the rest themselves.
-      const {nodes, nodesById} = this.props;
-     
+  
+
+      const {nodes, nodesById, sourceId} = this.props;
+   
+
       return nodes.map((id)=>{
-        return this.renderNode(nodesById[id]);
+        return this.renderNode(sourceId, nodesById[id]);
       });
   }
 
@@ -71,11 +82,12 @@ class UIBuilder extends Component {
 }
 
 
-function select(state) {
+function select(state, newProps) {
+
   return {
     dimensions: state.screen.dimensions,
-    nodes: state.uibuilder.nodes,
-    nodesById: state.uibuilder.nodesById,
+    nodes: state.uibuilder[newProps.sourceId] ? state.uibuilder[newProps.sourceId].nodes : [],
+    nodesById: state.uibuilder[newProps.sourceId] ? state.uibuilder[newProps.sourceId].nodesById : {},
   };
 }
 

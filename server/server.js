@@ -7,35 +7,29 @@ import ipcinit from './comms/ipc';
 import {lookup} from './datastore';
 const app = express();
 
-const DEVMODE = process.argv.length > 2 && process.argv[2] === "dev" ? true : false;
 
-if (!DEVMODE){
-  var HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
-  var HTTPS_SERVER_PRIVATE_KEY = process.env.HTTPS_SERVER_PRIVATE_KEY || '';
+var HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
+var HTTPS_SERVER_PRIVATE_KEY = process.env.HTTPS_SERVER_PRIVATE_KEY || '';
 
-  var credentials = {
+
+var credentials = {
 	 key:  HTTPS_SERVER_PRIVATE_KEY,
 	 cert: HTTPS_SERVER_CERT,
-  };
-}
+};
 
 app.use('/', express.static("static"));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
-let server;
 
-if (!DEVMODE){
-  server = https.createServer(credentials, app);  
-}else{
-  server = http.createServer(app);
-}
+const server = https.createServer(credentials, app);  
 
 let PORT = 8080
 
-if (DEVMODE){
-   PORT = 9090;
+if (process.argv.length > 2){
+   PORT = parseInt(process.argv[2]);
 }
+
 console.log("initing websockets");
 websocketinit(['databox'],server);
 
@@ -43,7 +37,6 @@ console.log("initing ipc");
 ipcinit();
 
 app.get('/', function(req,res){
-  console.log("seen a get /");
   res.render('index');
 });
 
@@ -58,9 +51,9 @@ app.get('/ui', function(req,res){
 });
 
 app.get('/ui/init/:id', function(req,res){
-  console.log("lovely - seen an init request for " + req.params.id);
-  console.log("seen a call to ui, sending back index!");
+
   const result = lookup(req.params.id);
+
   if (result){
     res.send({success:true, init:result});
   }
@@ -75,5 +68,5 @@ app.use(function(req,res){
    	res.redirect("/");
 });
 
-console.log("LOSTENING ON PORT " + PORT);
+console.log("LISTENING ON PORT " + PORT);
 server.listen(PORT);

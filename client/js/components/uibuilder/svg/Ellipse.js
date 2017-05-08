@@ -16,7 +16,7 @@ const _interpolatedStyles = interpolatedStyles.bind(null,styles,types);
 
 const selector = createStructuredSelector({
   node : (state, ownProps)=>{
-    return state.uibuilder.nodesById[ownProps.id]
+   	return state.uibuilder[ownProps.sourceId].nodesById[ownProps.id]
   },
 });
 

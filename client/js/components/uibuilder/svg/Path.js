@@ -6,7 +6,7 @@ import { createStructuredSelector } from 'reselect';
 
 const selector = createStructuredSelector({
   node : (state, ownProps)=>{
-    return state.uibuilder.nodesById[ownProps.id]
+    return state.uibuilder[ownProps.sourceId].nodesById[ownProps.id]
   },
 });
 
