@@ -17,9 +17,9 @@ export function init(id){
   return function (dispatch, getState) {
   
     dispatch(networkAccess(`initing`));
-    console.log(`calling ./ui/init/${id}`);
+    console.log(`- calling ./ui/init/${id}`);
     request
-      .get(`/ui/init/${id}`)
+      .get(`./ui/init/${id}`)
       .set('Accept', 'application/json')
       .end(function(err, res){
       if (err){
