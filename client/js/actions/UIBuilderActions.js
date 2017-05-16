@@ -170,25 +170,20 @@ function updateNodeTransform(sourceId:number, path:Array, property:string, trans
 
 
 function addMapping(sourceId, datasourceId, map){
-  
-  console.log("adding mapping " + sourceId);
-
 	return {
 		type: UIBUILDER_ADD_MAPPING,
 		sourceId,
-    datasourceId,
+    	datasourceId,
 		map,
 	}
 }
 
 export function init(id){
 	
-	console.log("OK INIT HAS BEEN CALLED!!!! : " + id);
-
 	return function (dispatch, getState) {
 	
 		dispatch(networkAccess(`initing`));
-		console.log(`** calling ./ui/init/${id}`);
+		console.log(`uibuilder: calling ./ui/init/${id}`);
 		request
 		  .get(`/ui/init/${id}`)
 		  .set('Accept', 'application/json')
@@ -198,8 +193,9 @@ export function init(id){
 			  dispatch(networkError(`failed init`));
 			}else{
 			
-			  dispatch(networkSuccess(`successfully inited!`));
-				console.log(res.body);
+			  	dispatch(networkSuccess(`successfully inited!`));
+				console.log("uibuilder: init response")
+				console.log(JSON.stringify(res.body,null,4));
 
 				if (res.body.init){
 					const {templates, mappings, transformers, canvasdimensions} = res.body.init;
