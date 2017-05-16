@@ -48,8 +48,6 @@ class AppContent extends Component {
 			height: `calc(100vh - 0px)`,
 			width: `calc(100vw - 5px)`,
 		}
-
-	
 		
 		const { apps, layout, dispatch, dimensions } = this.props;
 		const {w,h} = dimensions;
@@ -92,7 +90,6 @@ class AppContent extends Component {
 			
 				const {options,data} = app;
 			
-				console.log(app.view);
 				
 				switch (app.view){	
 				
@@ -124,8 +121,6 @@ class AppContent extends Component {
 					
 						if (data === Object(data)){ //if this is a valid javascript object
 							const props = {keys: data.keys || [], rows: data.rows || []};
-							console.log("props are");
-							console.log(props);
 							dataview = <List {...props}/>
 						}
 						break;
@@ -160,9 +155,8 @@ class AppContent extends Component {
 					WebkitFlex: '0 0 auto',
 					flex: '0 0 auto',
 				}
-								
-				return  <div>
-							{j==0 && <div style={titlebar}>
+				
+				/*{j==0 && <div style={titlebar}>
 								<div className="row">
 									<div style={remove}>
 										<div className="centered" onClick={this.appRemoved.bind(this, app.id)}><i className="fa fa-times fa-fw"></i></div>
@@ -176,8 +170,15 @@ class AppContent extends Component {
 								<div style={{width:"inherit", height:"inherit"}} key={i} className={classname}>
 									{dataview}
 								</div>		
+					   		</div>*/
+
+				return  <div>
+							<div key={`${appkey}${sourcekey}`} style={style}>
+								<div key={i} className={classname}>
+									{dataview}
+								</div>		
 					   		</div>
-					   	</div>    
+					   	</div>     
 			        
 	        });
 	    	

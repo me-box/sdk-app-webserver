@@ -1,1 +1,1 @@
- export const APP_TITLEBAR_HEIGHT = 40;
+ export const APP_TITLEBAR_HEIGHT = 0;
