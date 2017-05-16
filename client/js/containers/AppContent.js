@@ -44,6 +44,10 @@ class AppContent extends Component {
 
 	render() {
 	
+		console.log("in render app content!");
+		console.log("props are");
+		console.log(JSON.stringify(this.props, null, 4));
+		
 		const flexcontainer = {
 			height: `calc(100vh - 0px)`,
 			width: `calc(100vw - 5px)`,
@@ -51,6 +55,7 @@ class AppContent extends Component {
 		
 		const { apps, layout, dispatch, dimensions } = this.props;
 		const {w,h} = dimensions;
+		
 		const height = h;
 		
 		const totalrows = layout ? Object.keys(layout).length : 1;

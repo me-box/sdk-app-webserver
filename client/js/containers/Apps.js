@@ -8,7 +8,7 @@ class Apps extends Component {
 	} 
 
 	render() {
-	      
+	     console.log("in render apps");
 	    return (
 	    	<div>
 	    		<AppContent/>

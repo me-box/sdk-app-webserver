@@ -180,12 +180,14 @@ function addMapping(sourceId, datasourceId, map){
 
 export function init(id){
 	
+	console.log(`in uibuilder init`);
+
 	return function (dispatch, getState) {
 	
 		dispatch(networkAccess(`initing`));
 		console.log(`uibuilder: calling ./ui/init/${id}`);
 		request
-		  .get(`/ui/init/${id}`)
+		  .get(`./ui/init/${id}`)
 		  .set('Accept', 'application/json')
 		  .end(function(err, res){
 			if (err){
