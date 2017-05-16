@@ -231,8 +231,10 @@ function viz(state = initialState, action) {
                                                 nodesByKey,
                                                 templates : action.templates,
                                                 templatesById: action.templatesById,
+                                                canvasdimensions: action.canvasdimensions,
                                               });
       return _state;
+
   
   case UIBUILDER_REMOVE_NODE:
       

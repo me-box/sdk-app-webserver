@@ -181,17 +181,16 @@ function addMapping(sourceId, datasourceId, map){
 	}
 }
 
-
 export function init(id){
 	
-	console.log("OK INIT HAS BEEN CALLED (UIBUILDER): " + id);
+	console.log("OK INIT HAS BEEN CALLED!!!! : " + id);
 
 	return function (dispatch, getState) {
 	
 		dispatch(networkAccess(`initing`));
 		console.log(`** calling ./ui/init/${id}`);
 		request
-		  .get(`./ui/init/${id}`)
+		  .get(`/ui/init/${id}`)
 		  .set('Accept', 'application/json')
 		  .end(function(err, res){
 			if (err){
@@ -203,13 +202,14 @@ export function init(id){
 				console.log(res.body);
 
 				if (res.body.init){
-					const {templates, mappings, transformers} = res.body.init;
+					const {templates, mappings, transformers, canvasdimensions} = res.body.init;
 
 			  		dispatch({
 			  			type: UIBUILDER_INIT,
-              sourceId: id,
+              			sourceId: id,
 			  			templates: _parenttemplates(templates),
 			  			templatesById: templates,
+              			canvasdimensions,
 			  		});
 
 			  		dispatch(subscribeMappings(id, mappings, transformers));
