@@ -16,22 +16,27 @@ export default function init(){
                 function(data,socket){
                 	
                     //ipc.log('got a message : '.debug, data);
-                    const msg = JSON.parse(data.toString());
-					
-					if (msg.type && msg.type==="control"){
-						if (msg.payload && msg.payload.command === "init"){
-							console.log("saving");
-							console.log(msg.payload.data.id);
-							console.log(msg.payload.data);
+                    try{
+	                    const msg = JSON.parse(data.toString());
+						
+						if (msg.type && msg.type==="control"){
+							if (msg.payload && msg.payload.command === "init"){
+								console.log("saving");
+								console.log(msg.payload.data.id);
+								console.log(msg.payload.data);
 
-							savedata(msg.payload.data.id, msg.payload.data);
-							printstorage();
+								savedata(msg.payload.data.id, msg.payload.data);
+								printstorage();
+							}
 						}
-					}
 
-					const channel = "testApp";//msg.channel; //this is set to the user's github acc name
-					delete(msg.channel); 
-					sendmessage(channel, "databox", "message", msg)
+						const channel = "testApp";//msg.channel; //this is set to the user's github acc name
+						delete(msg.channel); 
+						sendmessage(channel, "databox", "message", msg)
+					}
+					catch(error){
+						console.log(error);
+					}
                     /*ipc.server.emit(
                         socket,
                         'message',  //this can be anything you want so long as 
