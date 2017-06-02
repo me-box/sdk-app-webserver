@@ -44,10 +44,8 @@ class AppContent extends Component {
 
 	render() {
 	
-		console.log("in render app content!");
-		console.log("props are");
-		console.log(JSON.stringify(this.props, null, 4));
-		
+		console.log("in render app content with props", JSON.stringify(this.props, null, 4));
+
 		const flexcontainer = {
 			height: `calc(100vh - 0px)`,
 			width: `calc(100vw - 5px)`,
@@ -160,22 +158,6 @@ class AppContent extends Component {
 					WebkitFlex: '0 0 auto',
 					flex: '0 0 auto',
 				}
-				
-				/*{j==0 && <div style={titlebar}>
-								<div className="row">
-									<div style={remove}>
-										<div className="centered" onClick={this.appRemoved.bind(this, app.id)}><i className="fa fa-times fa-fw"></i></div>
-									</div>
-									<div>
-										<div className="centered">{app.name}</div>
-									</div>
-								</div>
-							</div> }
-							<div key={`${appkey}${sourcekey}`} style={style}>
-								<div style={{width:"inherit", height:"inherit"}} key={i} className={classname}>
-									{dataview}
-								</div>		
-					   		</div>*/
 
 				return  <div>
 							<div key={`${appkey}${sourcekey}`} style={style}>

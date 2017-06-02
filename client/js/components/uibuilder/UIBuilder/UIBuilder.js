@@ -60,21 +60,16 @@ class UIBuilder extends Component {
 
   renderNodes(){
       //eventually can just pass in the id, and nodes will do the rest themselves.
-  
-
       const {nodes, nodesById, sourceId} = this.props;
-   
-
       return nodes.map((id)=>{
         return this.renderNode(sourceId, nodesById[id]);
       });
   }
 
   render() {
-    console.log("---> in uibuilder");
+   
     const {canvasdimensions, dimensions:{w,h}} = this.props;
-    console.log("uibuilder in render with");
-    console.log(JSON.stringify(this.props, null, 4));
+ 
     return <div className="canvas" style={{width:"100%", height:"100%"}}>
       <svg id="svgchart" viewBox={`0 0 ${canvasdimensions.w} ${canvasdimensions.h}`} width={w} height={h} preserveAspectRatio="xMinYMin slice">
         {this.renderNodes()}  
