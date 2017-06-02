@@ -102,7 +102,7 @@ const addData = (currentdata, action) =>{
 	if (action.view === "gauge"){
 		return gauge(currentdata,action);
 	}
-	else if (["list", "text", "html"].indexOf(action.view) !== -1){
+	else if (["list", "text", "html", "uibuilder"].indexOf(action.view) !== -1){
 		currentdata = currentdata || {};
 	  	return replace(currentdata, action);
 	}
