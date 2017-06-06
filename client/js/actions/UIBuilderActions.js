@@ -201,14 +201,14 @@ export function selectMapping(sourceId, mapping){
 
 export function init(id){
 	
-	console.log(`in uibuilder init`);
+	console.log("OK INIT HAS BEEN CALLED!!!! : " + id);
 
 	return function (dispatch, getState) {
 	
 		dispatch(networkAccess(`initing`));
-		console.log(`uibuilder: calling ./ui/init/${id}`);
+		console.log(`** calling ./ui/init/${id}`);
 		request
-		  .get(`./ui/init/${id}`)
+		  .get(`/ui/init/${id}`)
 		  .set('Accept', 'application/json')
 		  .end(function(err, res){
 			if (err){
@@ -216,12 +216,11 @@ export function init(id){
 			  dispatch(networkError(`failed init`));
 			}else{
 			
-			  	dispatch(networkSuccess(`successfully inited!`));
-				console.log("uibuilder: init response")
-				console.log(JSON.stringify(res.body,null,4));
+			  dispatch(networkSuccess(`successfully inited!`));
+				console.log(res.body);
 
 				if (res.body.init){
-					const {templates, mappings, transformers, canvasdimensions} = res.body.init;
+					const {templates, mappings, transformers, canvasdimensions, tree} = res.body.init;
 
 			  		dispatch({
 			  			type: UIBUILDER_INIT,
@@ -229,6 +228,7 @@ export function init(id){
 			  			templates: _parenttemplates(templates),
 			  			templatesById: templates,
               			canvasdimensions,
+              			tree,
 			  		});
 
 			  		dispatch(subscribeMappings(id, mappings, transformers));
@@ -237,6 +237,7 @@ export function init(id){
 		 });
 	}
 }
+
 
 
 export function subscribeMappings(sourceId, mappings, transformers){
