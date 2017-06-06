@@ -788,12 +788,7 @@ export function defaultCode(key, property){
    return `return ${key}`
 }
 
-export function resolvePath(key,path,obj){
-    console.log("resolving path");
-    console.log(path);
-    console.log(obj);
-    console.log(key);
-    
+export function resolvePath(key,path,obj){  
     return path.reduce((acc,item)=>{
         return acc[item];
     },obj)[key];

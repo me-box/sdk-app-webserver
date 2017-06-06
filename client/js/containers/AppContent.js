@@ -43,8 +43,6 @@ class AppContent extends Component {
 	}
 
 	render() {
-	
-		console.log("in render app content with props", JSON.stringify(this.props, null, 4));
 
 		const flexcontainer = {
 			height: `calc(100vh - 0px)`,
