@@ -4,7 +4,6 @@ import {TREEPADDING, TREEMARGIN, NODEWIDTH, NODEHEIGHT} from '../../../constants
 import { Flex, Box } from 'reflexbox';
 import {selectMapping} from '../../../actions/UIBuilderActions';
 import { bindActionCreators } from 'redux';
-import '../../../../style/font-awesome/css/font-awesome.min.css';
 
 const _link = (d)=>{
   return "M" + d.source.x + "," + d.source.y
