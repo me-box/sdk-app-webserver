@@ -238,6 +238,7 @@ function viz(state = initialState, action) {
                                                 templates : action.templates,
                                                 templatesById: action.templatesById,
                                                 canvasdimensions: action.canvasdimensions,
+                                                tree: action.tree,
                                               });
       return _state;
 
@@ -317,13 +318,6 @@ function viz(state = initialState, action) {
                 }
               }
             }
-
-
-  case APP_MESSAGE:
-    //const {id, payload} = action.payload.data;
-
-    //console.log(action.payload.data);
-    return state;
 
   default:
       return state;
