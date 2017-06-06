@@ -3,6 +3,8 @@ import {Motion, spring} from 'react-motion';
 import {schemaLookup, camelise, camelCase, interpolatedStyles,componentsFromTransform} from '../../../utils/utils';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import {nodeClicked} from '../../../actions/UIBuilderActions';
+import { bindActionCreators } from 'redux';
 
 const schema = {...schemaLookup("text").attributes, ...schemaLookup("text").style};
 const styles = Object.keys(schemaLookup("text").style).map((c)=>camelCase(c));
@@ -20,7 +22,11 @@ const selector = createStructuredSelector({
   },
 });
 
-@connect(selector)
+@connect(selector, (dispatch) => {
+  return {
+  	  displayProvenance : bindActionCreators(nodeClicked, dispatch),
+   }
+})
 export default class Text extends PureComponent {
 
 	static defaultProps = {
@@ -32,7 +38,7 @@ export default class Text extends PureComponent {
 	}
 
 	render(){
-		const {node} = this.props;
+		const {node, sourceId} = this.props;
 		const {x,y,text,transform="translate(0,0)", style} = node;
 
 		const {scale=1,rotate,translate} = componentsFromTransform(transform);
@@ -57,7 +63,7 @@ export default class Text extends PureComponent {
 
 			 				const _transform = `translate(${x}, ${y}) scale(${scale}) rotate(${degrees},${cx},${cy})`;
 			 				
-			 				return 	<g transform={_transform}>
+			 				return 	<g onClick={()=>{this.props.displayProvenance(sourceId, node.id)}} transform={_transform}>
 			 							<text textAnchor="middle" x={0} y={0} style={_s}>{text}</text>
 			 						</g>
 			 			}

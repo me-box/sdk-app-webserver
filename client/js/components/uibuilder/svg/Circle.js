@@ -3,6 +3,8 @@ import {Motion, spring} from 'react-motion';
 import {schemaLookup, camelise, camelCase, interpolatedStyles,componentsFromTransform } from '../../../utils/utils';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import {nodeClicked} from '../../../actions/UIBuilderActions';
+import { bindActionCreators } from 'redux';
 
 const styles = Object.keys(schemaLookup("circle").style).map((c)=>camelCase(c));
 
@@ -21,7 +23,11 @@ const selector = createStructuredSelector({
   },
 });
 
-@connect(selector)
+@connect(selector, (dispatch) => {
+  return {
+  	  displayProvenance : bindActionCreators(nodeClicked, dispatch),
+   }
+})
 export default class Circle extends PureComponent {
 
 
@@ -33,7 +39,7 @@ export default class Circle extends PureComponent {
 
 
 		
-		const {node} = this.props;
+		const {node, sourceId} = this.props;
 
 		const {cx,cy,r,style, transform="translate(0,0)"} = node;
 		
@@ -55,7 +61,7 @@ export default class Circle extends PureComponent {
 	 				{({cx,cy,scale,r,rotate,interpolatedStyles}) => {
 	 					const _s = Object.assign({},_style,interpolatedStyles);
 	 					const _transform = `translate(${cx}, ${cy}) scale(${scale}) rotate(${rotate})`;
-	 					return <circle cx={0} cy={0} r={r} style={_s} transform={`${_transform}`} />
+	 					return <circle onClick={()=>{this.props.displayProvenance(sourceId, node.id)}} cx={0} cy={0} r={r} style={_s} transform={`${_transform}`} />
 	 												
 	 					
 				 	}}	 

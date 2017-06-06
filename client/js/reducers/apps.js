@@ -20,6 +20,7 @@ const addGaugeData = (state, action) =>{
 	}
 }
 
+//TODO: this will just grow and grow.....!
 const append = (state = {data:[]}, action)=>{
 	const {options, values} = action.data;
 	return (Object.assign({}, ...state, {data: [...state.data || [], values], options: options, view:action.view, sourceId: action.sourceId, id: action.id, name: action.name}));

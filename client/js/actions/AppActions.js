@@ -57,8 +57,6 @@ export function newMessage(msg) {
 
     const {sourceId, payload={}} = msg;
     const {id, name, view, data={}} = payload;
-   
-    console.log("msg: " + sourceId);
 
     if (!inited[id]){
         inited[id] = true;

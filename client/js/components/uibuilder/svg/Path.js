@@ -3,6 +3,8 @@ import { camelise,componentsFromTransform } from '../../../utils/utils';
 import { connect } from 'react-redux';
 import {Motion, spring} from 'react-motion';
 import { createStructuredSelector } from 'reselect';
+import {nodeClicked} from '../../../actions/UIBuilderActions';
+import { bindActionCreators } from 'redux';
 
 const selector = createStructuredSelector({
   node : (state, ownProps)=>{
@@ -10,7 +12,11 @@ const selector = createStructuredSelector({
   },
 });
 
-@connect(selector)
+@connect(selector, (dispatch) => {
+  return {
+  	  displayProvenance : bindActionCreators(nodeClicked, dispatch),
+   }
+})
 export default class Path extends PureComponent {
 
 	shouldComponentUpdate(nextProps, nextState){
@@ -19,7 +25,7 @@ export default class Path extends PureComponent {
 
 	render(){
 
-		const {node} = this.props;
+		const {node, sourceId} = this.props;
 		const {d, style, transform="translate(0,0)"} = node;
 		const _style = camelise(style);
 	
@@ -38,7 +44,7 @@ export default class Path extends PureComponent {
 		return 	<Motion style={motionstyle}>
 	 				{({x,y,scale,degrees}) => {
 	 					const _transform = `translate(${x},${y}) scale(${scale}) rotate(${degrees}, ${cx}, ${cy})`;
-	 					return <path d={d} style={_style} transform={_transform}/>
+	 					return <path onClick={()=>{this.props.displayProvenance(sourceId, node.id)}} d={d} style={_style} transform={_transform}/>
 	 							
 	 				}}	 
 				</Motion>

@@ -4,6 +4,8 @@ import {Circle, Text, Line, Rect, Ellipse,Path} from "./"
 import {camelise, camelCase, componentsFromTransform, interpolatedStyles, schemaLookup} from '../../../utils/utils';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import {nodeClicked} from '../../../actions/UIBuilderActions';
+import { bindActionCreators } from 'redux';
 
 const styles = Object.keys(schemaLookup("group").style).map((c)=>camelCase(c));
 
@@ -22,7 +24,11 @@ const selector = createStructuredSelector({
   },
 });
 
-@connect(selector)
+@connect(selector, (dispatch) => {
+  return {
+  	  displayProvenance : bindActionCreators(nodeClicked, dispatch),
+   }
+})
 export default class Group extends PureComponent {
 
 	renderChildren(sourceId, children){
@@ -99,7 +105,7 @@ export default class Group extends PureComponent {
 	 				{({x,y,scale,degrees,interpolatedStyles}) => {
 	 					const _s = Object.assign({},_style,interpolatedStyles);
 	 					const _transform = `translate(${x}, ${y}) scale(${scale}) rotate(${degrees},${cx},${cy})`;
-	 					return <g transform={`${_transform}`} style={_s}>
+	 					return <g onClick={()=>{this.props.displayProvenance(sourceId, node.id)}} transform={`${_transform}`} style={_s}>
 	 						{this.renderChildren(sourceId, children)}
 	 					</g>								
 	 					

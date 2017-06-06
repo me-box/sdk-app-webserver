@@ -3,6 +3,8 @@ import {Motion, spring} from 'react-motion';
 import {schemaLookup, camelise, camelCase, interpolatedStyles, componentsFromTransform}  from '../../../utils/utils';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import {nodeClicked} from '../../../actions/UIBuilderActions';
+import { bindActionCreators } from 'redux';
 
 const schema = {...schemaLookup("ellipse").attributes, ...schemaLookup("ellipse").style};
 const styles = Object.keys(schemaLookup("ellipse").style).map((c)=>camelCase(c));
@@ -20,7 +22,11 @@ const selector = createStructuredSelector({
   },
 });
 
-@connect(selector)
+@connect(selector, (dispatch) => {
+  return {
+  	  displayProvenance : bindActionCreators(nodeClicked, dispatch),
+   }
+})
 export default class Ellipse extends PureComponent {	
 
 	shouldComponentUpdate(nextProps, nextState){
@@ -28,7 +34,7 @@ export default class Ellipse extends PureComponent {
 	}
 
 	render(){
-		const {node} = this.props;
+		const {node, sourceId} = this.props;
 		const {cx,cy,rx,ry, style, transform="translate(0,0)"} = node;
 		
 		const _style = camelise(style);
@@ -50,7 +56,7 @@ export default class Ellipse extends PureComponent {
 	 				{({cx,cy,scale,r,rotate,interpolatedStyles}) => {
 	 					const _s = Object.assign({},_style,interpolatedStyles);
 	 					const _transform = `translate(${cx}, ${cy}) scale(${scale}) rotate(${rotate})`;
-	 					return <ellipse cx={0} cy={0} rx={rx} ry={ry} style={_s} transform={`${_transform}`} />
+	 					return <ellipse onClick={()=>{this.props.displayProvenance(sourceId, node.id)}} cx={0} cy={0} rx={rx} ry={ry} style={_s} transform={`${_transform}`} />
 	 													
 	 					
 				 	}}	 

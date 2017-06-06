@@ -3,6 +3,8 @@ import {Motion, spring} from 'react-motion';
 import {schemaLookup, camelise, camelCase, interpolatedStyles,componentsFromTransform} from '../../../utils/utils';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import {nodeClicked} from '../../../actions/UIBuilderActions';
+import { bindActionCreators } from 'redux';
 
 const schema = {...schemaLookup("rect").attributes, ...schemaLookup("rect").style};
 
@@ -21,7 +23,11 @@ const selector = createStructuredSelector({
   },
 });
 
-@connect(selector)
+@connect(selector, (dispatch) => {
+  return {
+  	  displayProvenance : bindActionCreators(nodeClicked, dispatch),
+   }
+})
 export default class Rect extends PureComponent {
 
 	shouldComponentUpdate(nextProps, nextState){
@@ -30,7 +36,7 @@ export default class Rect extends PureComponent {
 
 	render(){
 		
-		const {node} = this.props;
+		const {node, sourceId} = this.props;
 		const {x,y,rx,ry,width,height,transform="translate(0,0)",style} = node;
 		const _style = camelise(style);
 		const is = _interpolatedStyles(_style)
@@ -53,7 +59,7 @@ export default class Rect extends PureComponent {
 	 				{({x,y,width,height,scale,rotate,interpolatedStyles}) => {
 			 			const _s = Object.assign({},_style,interpolatedStyles);
 	 					const _transform = `translate(${x}, ${y}) scale(${scale}) rotate(${rotate},${cx},${cy})`;
-	 					return <rect rx={rx} ry={ry} width={width} height={height} style={_s} transform={_transform}/>
+	 					return <rect onClick={()=>{this.props.displayProvenance(sourceId, node.id)}} rx={rx} ry={ry} width={width} height={height} style={_s} transform={_transform}/>
 					}}	 
 				</Motion>
 	}

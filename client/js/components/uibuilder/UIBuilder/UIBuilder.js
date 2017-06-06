@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {Circle,Ellipse,Text,Rect,Line,Path,Group} from '../svg/';
 import {init} from '../../../actions/UIBuilderActions';
+import Provenance from '../Provenance/';
 
 class UIBuilder extends Component {
 
@@ -70,11 +71,14 @@ class UIBuilder extends Component {
    
     const {canvasdimensions, dimensions:{w,h}} = this.props;
  
-    return <div className="canvas" style={{width:"100%", height:"100%"}}>
-      <svg id="svgchart" viewBox={`0 0 ${canvasdimensions.w} ${canvasdimensions.h}`} width={w} height={h} preserveAspectRatio="xMinYMin slice">
-        {this.renderNodes()}  
-      </svg>
-    </div>
+    return  <div>
+              <div className="canvas" style={{width:"100%", height:"100%"}}>
+                <svg id="svgchart" viewBox={`0 0 ${canvasdimensions.w} ${canvasdimensions.h}`} width={w} height={h} preserveAspectRatio="xMinYMin slice">
+                  {this.renderNodes()}  
+                </svg>
+              </div>
+              <Provenance sourceId={this.props.sourceId} w={500}/>
+            </div>
   }
 }
 
