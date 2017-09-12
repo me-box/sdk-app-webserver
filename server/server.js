@@ -5,22 +5,25 @@ import bodyparser from 'body-parser';
 import websocketinit from './comms/websocket';
 import ipcinit from './comms/ipc';
 import {lookup} from './datastore';
+import databox from 'node-databox';
+
+const credentials = databox.getHttpsCredentials();
+
 const app = express();
 
 
-var HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
-var HTTPS_SERVER_PRIVATE_KEY = process.env.HTTPS_SERVER_PRIVATE_KEY || '';
+//var HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
+//var HTTPS_SERVER_PRIVATE_KEY = process.env.HTTPS_SERVER_PRIVATE_KEY || '';
 
 
-var credentials = {
-	 key:  HTTPS_SERVER_PRIVATE_KEY,
-	 cert: HTTPS_SERVER_CERT,
-};
+//var credentials = {
+//	 key:  HTTPS_SERVER_PRIVATE_KEY,
+//	 cert: HTTPS_SERVER_CERT,
+//};
 
 app.use('/', express.static("static"));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
-
 
 const server = https.createServer(credentials, app);  
 
