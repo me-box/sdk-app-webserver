@@ -16,7 +16,7 @@ export default function init(nsps, server){
         nsp.on('connection', function(socket){
 
            socket.on('join', function(app){
-              console.log("joining client to room" + app);
+              console.log("seen a join request, joining client to room ", app);
               socket.join(app);
               //return app; 
           });
@@ -27,7 +27,7 @@ export default function init(nsps, server){
           });
       
           socket.on('disconnect', function(){
-             console.log("socket disconnect!");
+             console.log("webserver seen socket disconnect!");
           });
 
         });
@@ -45,7 +45,7 @@ export function sendmessages(rooms, namespace, event, message){
 
 export function sendmessage(room, namespace, event, message){
       if (_namespaces[namespace]){
-        //console.log(`sending to room ${room} namespace ${namespace}`);
+         console.log(`** websocket: sending to room ${room} namespace ${namespace} **`);
         _namespaces[namespace].to(room).emit(event, message);
       }
 };

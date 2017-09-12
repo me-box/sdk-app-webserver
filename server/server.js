@@ -45,7 +45,7 @@ app.get('/', function(req,res){
 
 app.get('/ui/comms/channelID', function(req,res){
     console.log("seen an incoming comms request!!");
-    res.send({channelID:'testApp'});         
+    res.send({channelID:'webapp'});         
 });
 
 app.get('/ui/init/:id', function(req,res){
