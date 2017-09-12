@@ -1,74 +1,51 @@
 import {sendmessage} from './websocket';
-import {savedata, printstorage} from '../datastore';
-import ipc from 'node-ipc'
-let counter = 0;
+import net from 'net'
+import {savedata} from '../datastore';
+import JsonSocket from 'json-socket';
+
+
+const handleMsg = (data)=>{
+	try {
+		const {type, msg} = data;
+		let channel = "";
+
+		switch (type){
+			case "message":
+				if (msg.type==="control"){
+					console.log("------------> seen an init message <-------------------------");
+					if (msg.payload && msg.payload.command === "init"){
+						console.log("*** SAVING DATA", JSON.stringify(msg.payload.data,null, 4));
+						savedata(msg.payload.data.id, msg.payload.data);
+					}
+				}
+				channel = msg.channel;
+				delete(msg.channel); 
+				sendmessage(channel, "databox", "message", msg);
+				break;
+
+			default:
+				channel = msg.channel;
+				delete(msg.channel); 
+				sendmessage(channel, "databox", type, msg)
+		}
+	}catch(err){
+		console.log("error parsing data", data);
+	}
+}
 
 export default function init(){
 	
-	ipc.config.id   = 'webserver';
-    ipc.config.retry= 1500;
- 	ipc.config.silent = true;
+	console.log("INITING THE SERVER!");
 
-    ipc.serve(
-        function(){
-            ipc.server.on(
-                'message',
-                function(data,socket){
-                	
-                    //ipc.log('got a message : '.debug, data);
-                    try{
-	                    const msg = JSON.parse(data.toString());
-						
-						if (msg.type && msg.type==="control"){
-							if (msg.payload && msg.payload.command === "init"){
-								console.log("saving");
-								console.log(msg.payload.data.id);
-								console.log(msg.payload.data);
+	var server = net.createServer();
 
-								savedata(msg.payload.data.id, msg.payload.data);
-								printstorage();
-							}
-						}
-
-						const channel = "testApp";//msg.channel; //this is set to the user's github acc name
-						delete(msg.channel); 
-						sendmessage(channel, "databox", "message", msg)
-					}
-					catch(error){
-						console.log(error);
-					}
-                    /*ipc.server.emit(
-                        socket,
-                        'message',  //this can be anything you want so long as 
-                                    //your client knows. 
-                        data+' world!'
-                    );*/
-                }
-            );
-        }
-    );
- 
-    ipc.server.start();
-}
-
-/*export default function init(){
-	const client = mqtt.connect('mqtt://localhost:1883')
-	
-	client.on('connect', () => {  
-  		client.subscribe('webapp')
-	})
-
-	client.on('message', (topic, message) => {  
-
-		try {
-			const msg = JSON.parse(message.toString());
-			console.log(msg);
-			const channel = "testApp";//msg.channel; //this is set to the user's github acc name
-			delete(msg.channel); 
-			sendmessage(channel, "databox", "message", msg)
-		}
-		catch(err){
-			console.log(err);
-		}
+	server.on('connection', function(socket) { //This is a standard net.Socket
+    	socket = new JsonSocket(socket); //Now we've decorated the net.Socket to be a JsonSocket
+	    socket.on('message', function(message) {
+	       console.log("got a message!!");
+	       handleMsg(message);
+	    });
 	});
-}*/
+
+    server.listen(8435, '0.0.0.0');
+}
