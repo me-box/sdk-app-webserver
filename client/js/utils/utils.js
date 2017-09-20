@@ -790,8 +790,6 @@ export function defaultCode(key, property){
 
 export function resolvePath(key,path,obj){  
 
-    console.log("resolving path", path, " and key: ", key, " for obj: ", obj);
-
     if (!obj){
         return null;
     }

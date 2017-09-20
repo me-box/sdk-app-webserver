@@ -279,10 +279,8 @@ export function subscribeMappings(sourceId, mappings, transformers){
 
 			        const {mappingId, from: {key},  to:{property}} = mapping;
 			        const template = templatesById[mapping.to.path[mapping.to.path.length-1]];
-			        console.log("resolving path", mapping.from.key, mapping.from.path);
-              console.log("and data is ", JSON.stringify(data,null,4));
               const value  = resolvePath(mapping.from.key, mapping.from.path, data);
-			        console.log("value is", value);
+			        console.log("value:", value);
 
 			        let shouldenter = true;
 			        let enterKey = null;
@@ -294,9 +292,6 @@ export function subscribeMappings(sourceId, mappings, transformers){
 		            }
 		            return acc;
 		          },{}) : {};
-			          
-
-              console.log("got data", JSON.stringify(_data,null,4));
 
 		          if (template.enterFn){
 			            const {enter,key} = template.enterFn;
@@ -304,7 +299,6 @@ export function subscribeMappings(sourceId, mappings, transformers){
 			            enterKey =  Function(...key.params, key.body)(_data,count);
 			        }
 			   
-
 		          const nodestotestforexit = Object.keys(nodesByKey[template.id] || {}).reduce((acc,key)=>{
 		            const nodeId = nodesByKey[template.id][key];
 		            acc.push({key, node:nodesById[nodeId]});
@@ -319,10 +313,9 @@ export function subscribeMappings(sourceId, mappings, transformers){
 		            
 			        if (shouldenter){
 			            const transformer = transformers[mappingId] || defaultCode(key,property);
-                  console.log("transformer is", transformer);
+                  
 		              const node = _getNode(nodesByKey, nodesById, enterKey, mapping.to.path); 
 			            const transform   = Function("key", key, "node", "i", "w", "h", transformer)(enterKey || "root", value, node, count, wratio*dimensions.w, hratio * dimensions.h);  
-
 			            dispatch(fn(sourceId, mapping.to.path,property,transform, enterKey, Date.now(), count));
 		              dispatch(recordPath(sourceId, mappingId, mapping.from.sourceId, data._path, transform));
 			        }
