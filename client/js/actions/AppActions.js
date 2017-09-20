@@ -43,7 +43,7 @@ export function init(id){
 }
 
 export function newMessage(msg) {
-  
+
   if (!msg)
     return;
   
@@ -57,26 +57,31 @@ export function newMessage(msg) {
 
     const {sourceId, payload={}} = msg;
     const {id, name, view, data={}} = payload;
+  
 
     if (!inited[id]){
         inited[id] = true;
-        console.log("- seen new message and not inited: dispatching init");
         dispatch(init(id));
     }
 
     //TODO - this is a special case for uibuilder -  make standard
 
     if (view === "uibuilder"){
-
         const state = getState().uibuilder[sourceId];
        
         if (state && state.mappings){
           const mappings = state.mappings[data.id] || [];
-
+          const tick = state.ticks[data.id] || 0;
           mappings.map((item)=>{
-            item.onData({msg:data}, 0, item.mapping);
+            item.onData(data, tick, item.mapping);
           });
         } 
+
+        dispatch({
+          type:UIBUILDER_INCREMENT_TICK,
+          dataId: data.id,
+          sourceId,
+        });
     }
 
     dispatch({
