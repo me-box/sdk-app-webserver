@@ -1,4 +1,4 @@
-import { APP_INIT, APP_REMOVED, APP_MESSAGE, APP_RESET, DEBUG_MESSAGE,  DEBUG_TOGGLE_PAUSE, BULB_MESSAGE, PIPSTA_MESSAGE } from '../constants/ActionTypes';
+import { APP_INIT, APP_REMOVED, APP_MESSAGE, APP_RESET, DEBUG_MESSAGE,  DEBUG_TOGGLE_PAUSE, BULB_MESSAGE, PIPSTA_MESSAGE,UIBUILDER_INCREMENT_TICK } from '../constants/ActionTypes';
 import {networkAccess, networkError, networkSuccess} from './NetworkActions';
 import request from 'superagent';
 
@@ -44,7 +44,7 @@ export function init(id){
 
 export function newMessage(msg) {
 
-  console.log("new msg");
+ 
   if (!msg)
     return;
   

@@ -1,5 +1,5 @@
 
-import {UIBUILDER_PROVENANCE, UIBUILDER_PROVENANCE_SELECT_MAPPING, UIBUILDER_RECORD_PATH,UIBUILDER_INIT, UIBUILDER_REMOVE_NODE, UIBUILDER_CLONE_NODE, UIBUILDER_UPDATE_NODE_ATTRIBUTE, UIBUILDER_UPDATE_NODE_STYLE, UIBUILDER_UPDATE_NODE_TRANSFORM,UIBUILDER_ADD_MAPPING, APP_MESSAGE} from '../constants/ActionTypes';
+import {UIBUILDER_PROVENANCE, UIBUILDER_PROVENANCE_SELECT_MAPPING, UIBUILDER_RECORD_PATH,UIBUILDER_INCREMENT_TICK,UIBUILDER_INIT, UIBUILDER_REMOVE_NODE, UIBUILDER_CLONE_NODE, UIBUILDER_UPDATE_NODE_ATTRIBUTE, UIBUILDER_UPDATE_NODE_STYLE, UIBUILDER_UPDATE_NODE_TRANSFORM,UIBUILDER_ADD_MAPPING, APP_MESSAGE} from '../constants/ActionTypes';
 import {generateId, scalePreservingOrigin, componentsFromTransform,originForNode} from '../utils/utils';
 
 const initialState = {
@@ -9,6 +9,7 @@ const initialState = {
   templatesById: {},
   templates: [],
   mappings: {},   
+  ticks : {},
   canvasdimensions: {w:0, h:0},    
   tree: {},  
   provenance: [],
@@ -319,6 +320,16 @@ function viz(state = initialState, action) {
                 }
               }
             }
+
+  case UIBUILDER_INCREMENT_TICK:
+  
+      return {
+          ...state,
+          ticks : {
+            ...state.ticks,
+            [action.dataId]: state.ticks[action.dataId] ?  state.ticks[action.dataId] + 1 : 1,
+          }
+      }
 
   default:
       return state;
