@@ -70,7 +70,7 @@ class UIBuilder extends Component {
 
   render() {
    
-    const {canvasdimensions, dimensions:{w,h}, sourceId} = this.props;
+    const {canvasdimensions, w, h, sourceId} = this.props;
  
     return  <div>
               <div className="canvas" style={{width:"100%", height:"100%"}}>
@@ -87,7 +87,6 @@ class UIBuilder extends Component {
 function select(state, newProps) {
 
   return {
-    dimensions: state.screen.dimensions,
     canvasdimensions: state.uibuilder[newProps.sourceId] ? state.uibuilder[newProps.sourceId].canvasdimensions : {w:0,h:0},
     nodes: state.uibuilder[newProps.sourceId] ? state.uibuilder[newProps.sourceId].nodes : [],
     nodesById: state.uibuilder[newProps.sourceId] ? state.uibuilder[newProps.sourceId].nodesById : {},

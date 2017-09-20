@@ -43,20 +43,21 @@ class AppContent extends Component {
 	}
 
 	render() {
-
+	
 		const flexcontainer = {
-			height: `calc(100vh - 0px)`,
+			height: `calc(100vh - ${HEADER_TOOLBAR_HEIGHT+FOOTER_TOOLBAR_HEIGHT}px)`,
 			width: `calc(100vw - 5px)`,
 		}
-		
+	
 		const { apps, layout, dispatch, dimensions } = this.props;
 		const {w,h} = dimensions;
-		
-		const height = h;
+		const height = h - (HEADER_TOOLBAR_HEIGHT+FOOTER_TOOLBAR_HEIGHT);
 		
 		const totalrows = layout ? Object.keys(layout).length : 1;
 		const APPCONTAINERHEIGHT = (height / totalrows);
 		
+		
+
 	    const applist = Object.keys(apps).map((appkey,i)=>{
 	    	  
 	        const approw = apps[appkey];
@@ -64,18 +65,14 @@ class AppContent extends Component {
 	        return Object.keys(approw).map((sourcekey,j)=>{
 	    		
 	    		const {row,col} = layout ? lookup(layout[appkey],sourcekey) : {row:i, col:j};
-	    		
-	    		//console.log(`for app ${appkey}, source:${sourcekey} row is ${row} col is ${col}`);
-	    	
-	    		
 	    		const app = approw[sourcekey];
 	    		const totalcols = layout  && layout[appkey] && layout[appkey][row] ? layout[appkey][row].length : Object.keys(approw).length;
-	    		//console.log(`total cols is ${totalcols}`);
-	    		//console.log(`total cols for app ${appkey}, source:${sourcekey} are ${totalcols} and total rows are ${layout[appkey].length}`); 
 	    		
-	    		const APPHEIGHT =  (APPCONTAINERHEIGHT - APP_TITLEBAR_HEIGHT) / (layout && layout[appkey] ? layout[appkey].length : totalrows); 
 	    		
-	    		//console.log(`APPCONTAINERHEIGHT IS ${APPCONTAINERHEIGHT} APPHEIGHT = ${APPHEIGHT}`);
+	    		const rowcount = layout && layout[appkey] ? layout[appkey].length : totalrows;
+
+	    		const APPHEIGHT =  (APPCONTAINERHEIGHT - APP_TITLEBAR_HEIGHT) / rowcount;
+	    		
 	    		
 	    		const APPWIDTH  = (w/totalcols);
 	    		
@@ -84,8 +81,9 @@ class AppContent extends Component {
 					width: APPWIDTH,
 					left: APPWIDTH * col,
 					height: APPHEIGHT,
-					top:  APP_TITLEBAR_HEIGHT + (APPCONTAINERHEIGHT * i) + (APPHEIGHT * row),		
+					top:  HEADER_TOOLBAR_HEIGHT + APP_TITLEBAR_HEIGHT + (APPCONTAINERHEIGHT * i) + (APPHEIGHT * row),		
 				}
+
 			
 				let dataview = null;
 			
@@ -93,14 +91,14 @@ class AppContent extends Component {
 			
 				
 				switch (app.view){	
-				
+					
 					case 'uibuilder':
 						dataview = 	<UIBuilder {...{w: APPWIDTH, h: APPHEIGHT, sourceId: app.sourceId}} />
 						break;
-
-					case 'html':
 						
-						dataview = <div style={{width:w, height:h}}>
+					case 'html':
+					
+						dataview = <div>
 								   		<div style={{width:w, height:h}} dangerouslySetInnerHTML={{__html: data}}></div>
 								   </div>
 						break;
@@ -139,7 +137,7 @@ class AppContent extends Component {
 				const titlebar = {
 					position: 'absolute',
 					left: 0,
-					top: (APPCONTAINERHEIGHT * i),
+					top: HEADER_TOOLBAR_HEIGHT + (APPCONTAINERHEIGHT * i),
 					height: APP_TITLEBAR_HEIGHT,
 					width: w,
 					boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
@@ -156,14 +154,14 @@ class AppContent extends Component {
 					WebkitFlex: '0 0 auto',
 					flex: '0 0 auto',
 				}
-
+								
 				return  <div>
 							<div key={`${appkey}${sourcekey}`} style={style}>
 								<div key={i} className={classname}>
 									{dataview}
 								</div>		
 					   		</div>
-					   	</div>     
+					   	</div>    
 			        
 	        });
 	    	
@@ -172,13 +170,7 @@ class AppContent extends Component {
 	    return <ReactCSSTransitionGroup className="container" style={flexcontainer} transitionName="flexitem" transitionEnterTimeout={500} transitionLeaveTimeout={300}>{applist}</ReactCSSTransitionGroup>
          	
 	}
-
-	 _handleResize(e){
-      const w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-      const h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-      this.windowResize(w,h);
-    }
-};
+}
 
 function select(state) {
   return {
