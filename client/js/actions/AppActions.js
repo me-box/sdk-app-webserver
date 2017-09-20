@@ -44,6 +44,7 @@ export function init(id){
 
 export function newMessage(msg) {
 
+  console.log("new msg");
   if (!msg)
     return;
   
