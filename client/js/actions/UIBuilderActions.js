@@ -258,67 +258,73 @@ export function subscribeMappings(sourceId, mappings, transformers){
 
 	return (dispatch, getState)=>{
     	
-      //first check any nodes that need to expire
     	
 	    for (let i = 0; i < mappings.length; i++){
 	      
-	      	const fn = _function_for[mappings[i].ttype];
+	      const fn = _function_for[mappings[i].ttype];
 	      
 		   	if (fn){
 
 		        const onData = (data, count, mapping)=>{
 			       
-		            const {screen:{dimensions}} = getState();
+              
+
+		          const {screen:{dimensions}} = getState();
 		            
-		            const {nodesByKey={}, nodesById={}, templatesById={}, canvasdimensions={w:dimensions.w,h:dimensions.h}} = getState().uibuilder[sourceId];
+		          const {nodesByKey={}, nodesById={}, templatesById={}, canvasdimensions={w:dimensions.w,h:dimensions.h}} = getState().uibuilder[sourceId];
 		            
-		             //adjust dims for viewbox!
-		            const wratio = canvasdimensions.w/dimensions.w;
-		            const hratio = canvasdimensions.h/dimensions.h;
+		          //adjust dims for viewbox!
+		          const wratio = canvasdimensions.w/dimensions.w;
+		          const hratio = canvasdimensions.h/dimensions.h;
 
 			        const {mappingId, from: {key},  to:{property}} = mapping;
 			        const template = templatesById[mapping.to.path[mapping.to.path.length-1]];
-			        const value   = resolvePath(mapping.from.key, mapping.from.path, data);
-			          
+			        console.log("resolving path", mapping.from.key, mapping.from.path);
+              console.log("and data is ", JSON.stringify(data,null,4));
+              const value  = resolvePath(mapping.from.key, mapping.from.path, data);
+			        console.log("value is", value);
+
 			        let shouldenter = true;
 			        let enterKey = null;
 
-		            const _data = template.enterFn || template.exitFn ?  Object.keys(data).reduce((acc,key)=>{
-		                if (!key.startsWith("_")){
-		                   acc[key] = data[key];
-		                }
-		                return acc;
-		            },{}) : {};
+              //filter out metadata e.g. _path
+		          const _data = template.enterFn || template.exitFn ?  Object.keys(data).reduce((acc,key)=>{
+		            if (!key.startsWith("_")){
+		                  acc[key] = data[key];
+		            }
+		            return acc;
+		          },{}) : {};
 			          
-		            if (template.enterFn){
+
+              console.log("got data", JSON.stringify(_data,null,4));
+
+		          if (template.enterFn){
 			            const {enter,key} = template.enterFn;
 			            shouldenter = Function(...enter.params, enter.body)(_data,count);
 			            enterKey =  Function(...key.params, key.body)(_data,count);
 			        }
 			   
 
-		            const nodestotestforexit = Object.keys(nodesByKey[template.id] || {}).reduce((acc,key)=>{
-		              const nodeId = nodesByKey[template.id][key];
-		              acc.push({key, node:nodesById[nodeId]});
-		              return acc;
-		            },[]);
+		          const nodestotestforexit = Object.keys(nodesByKey[template.id] || {}).reduce((acc,key)=>{
+		            const nodeId = nodesByKey[template.id][key];
+		            acc.push({key, node:nodesById[nodeId]});
+		            return acc;
+		          },[]);
 
-		            console.log("testing nodes", nodestotestforexit);
-
-		            const toremove = assessForRemoval(nodestotestforexit, _data, count);
-		            console.log("to remove", toremove);
+		          const toremove = assessForRemoval(nodestotestforexit, _data, count);
 		            
-		            toremove.forEach((item)=>{
-		              dispatch(removeNode(sourceId, item.nodeId, [template.id], item.key));
-		            });
+		          toremove.forEach((item)=>{
+		            dispatch(removeNode(sourceId, item.nodeId, [template.id], item.key));
+		          });
 		            
 			        if (shouldenter){
 			            const transformer = transformers[mappingId] || defaultCode(key,property);
-		              	const node = _getNode(nodesByKey, nodesById, enterKey, mapping.to.path); 
+                  console.log("transformer is", transformer);
+		              const node = _getNode(nodesByKey, nodesById, enterKey, mapping.to.path); 
 			            const transform   = Function("key", key, "node", "i", "w", "h", transformer)(enterKey || "root", value, node, count, wratio*dimensions.w, hratio * dimensions.h);  
 
 			            dispatch(fn(sourceId, mapping.to.path,property,transform, enterKey, Date.now(), count));
-		              	dispatch(recordPath(sourceId, mappingId, mapping.from.sourceId, data._path, transform));
+		              dispatch(recordPath(sourceId, mappingId, mapping.from.sourceId, data._path, transform));
 			        }
 		        }
 		        dispatch(addMapping(sourceId, mappings[i].from.sourceId, {mapping:mappings[i], onData}))
