@@ -251,7 +251,7 @@ export function assessForRemoval(nodesToCheck, data, count){
   return nodesToCheck.reduce((acc,item)=>{
       const {key,node} = item;
       const removeFn = node.exitFn ? Function("key", ...node.exitFn.params, node.exitFn.body) : (k,d,c)=>false;
-      const remove = removeFn(key,data,count);
+      const remove = removeFn(key,data,count,node);
 
       if (remove){
         acc.push({nodeId:node.id, key});
