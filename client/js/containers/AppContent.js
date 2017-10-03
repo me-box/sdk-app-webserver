@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import {APP_TITLEBAR_HEIGHT} from '../constants/ViewConstants';
+import {HEADER_TOOLBAR_HEIGHT,FOOTER_TOOLBAR_HEIGHT, APP_TITLEBAR_HEIGHT} from '../constants/ViewConstants';
 import { bindActionCreators } from 'redux';
 import '../../style/sass/style.scss';
 import cx from 'classnames';
@@ -170,7 +170,13 @@ class AppContent extends Component {
 	    return <ReactCSSTransitionGroup className="container" style={flexcontainer} transitionName="flexitem" transitionEnterTimeout={500} transitionLeaveTimeout={300}>{applist}</ReactCSSTransitionGroup>
          	
 	}
-}
+
+	 _handleResize(e){
+      const w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      const h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      this.windowResize(w,h);
+    }
+};
 
 function select(state) {
   return {

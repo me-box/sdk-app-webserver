@@ -1,6 +1,6 @@
 import {networkAccess, networkError, networkSuccess} from './NetworkActions';
 import request from 'superagent';
-import {UIBUILDER_INIT, UIBUILDER_PROVENANCE, UIBUILDER_PROVENANCE_SELECT_MAPPING, UIBUILDER_RECORD_PATH, UIBUILDER_REMOVE_NODE, UIBUILDER_CLONE_NODE, UIBUILDER_UPDATE_NODE_ATTRIBUTE, UIBUILDER_UPDATE_NODE_TRANSFORM, UIBUILDER_UPDATE_NODE_STYLE, UIBUILDER_ADD_MAPPING} from '../constants/ActionTypes';
+import {UIBUILDER_INIT, UIBUILDER_PROVENANCE, UIBUILDER_PROVENANCE_SELECT_MAPPING, UIBUILDER_RECORD_PATH, UIBUILDER_REMOVE_NODE, UIBUILDER_CLONE_NODE, UIBUILDER_CLONE_NODE_WITH_STYLE, UIBUILDER_CLONE_NODE_WITH_ATTRIBUTE, UIBUILDER_CLONE_NODE_WITH_TRANSFORM, UIBUILDER_UPDATE_NODE_ATTRIBUTE, UIBUILDER_UPDATE_NODE_TRANSFORM, UIBUILDER_UPDATE_NODE_STYLE, UIBUILDER_ADD_MAPPING} from '../constants/ActionTypes';
 import {defaultCode, resolvePath} from '../utils/utils';
 import {hierarchy, tree as d3tree} from 'd3-hierarchy';
 import {TREEPADDING, TREEMARGIN} from '../constants/ViewConstants';
@@ -68,34 +68,6 @@ function removeNode(sourceId, nodeId, path, enterKey){
    }
 }
 
-function updateNodeAttribute(sourceId:number, path:Array, property:string, value, enterKey:string, ts:number, index:number) {
-  
-  return (dispatch, getState)=>{
-    
-    //clone this node if we need to
-    if (_shouldClone(path, enterKey,  (getState().uibuilder[sourceId] || {}).nodesByKey)){
-      dispatch({
-          type: UIBUILDER_CLONE_NODE,
-          sourceId,
-          enterKey,
-          path,
-          ts,
-          index,
-      });
-    }
-
-    //update the node
-    dispatch({
-        type: UIBUILDER_UPDATE_NODE_ATTRIBUTE,
-        sourceId,
-        path,
-        property,
-        value,
-        enterKey,
-    });
-  };
-}
-
 function cloneNode(sourceId:number, path:Array, enterKey, index){
  
   return (dispatch, getState)=>{
@@ -113,29 +85,61 @@ function cloneNode(sourceId:number, path:Array, enterKey, index){
   }
 }
 
+function updateNodeAttribute(sourceId:number, path:Array, property:string, value, enterKey:string, ts:number, index:number) {
+  
+  return (dispatch, getState)=>{
+    
+    //clone this node if we need to
+    if (_shouldClone(path, enterKey,  (getState().uibuilder[sourceId] || {}).nodesByKey)){
+      dispatch({
+          type: UIBUILDER_CLONE_NODE_WITH_ATTRIBUTE,
+          sourceId,
+          enterKey,
+          path,
+          ts,
+          index,
+          property,
+          value,
+      });
+    }else{
+      //update the node
+      dispatch({
+          type: UIBUILDER_UPDATE_NODE_ATTRIBUTE,
+          sourceId,
+          path,
+          property,
+          value,
+          enterKey,
+      });
+    }
+  };
+}
+
 function updateNodeStyle(sourceId:number, path:Array, property:string, value, enterKey:string, ts:number, index:number){
 
   return (dispatch, getState)=>{
 
     if (_shouldClone(path, enterKey, (getState().uibuilder[sourceId] || {}).nodesByKey)){
       dispatch({
-          type: UIBUILDER_CLONE_NODE,
+          type: UIBUILDER_CLONE_NODE_WITH_STYLE,
           sourceId,
           enterKey,
           path,
           ts,
           index,
+          property,
+          value,
+      });
+    }else{
+      dispatch({
+        type: UIBUILDER_UPDATE_NODE_STYLE,
+        sourceId,
+        path,
+        property,
+        value,
+        enterKey,
       });
     }
-
-    dispatch({
-      type: UIBUILDER_UPDATE_NODE_STYLE,
-      sourceId,
-      path,
-      property,
-      value,
-      enterKey,
-    });
   }
 }
 
@@ -144,28 +148,30 @@ function updateNodeTransform(sourceId:number, path:Array, property:string, trans
 
   return (dispatch, getState)=>{
   
-  if (_shouldClone(path, enterKey,  (getState().uibuilder[sourceId] || {}).nodesByKey)){
-      
-      //console.log("YES - cloning!");
+    if (_shouldClone(path, enterKey,  (getState().uibuilder[sourceId] || {}).nodesByKey)){
+        
+        //console.log("YES - cloning!");
 
+        dispatch({
+            type: UIBUILDER_CLONE_NODE_WITH_TRANSFORM,
+            sourceId,
+            enterKey,
+            path,
+            ts,
+            index,
+            property,
+            transform,
+        });
+    }else{
       dispatch({
-          type: UIBUILDER_CLONE_NODE,
+          type: UIBUILDER_UPDATE_NODE_TRANSFORM,
           sourceId,
-          enterKey,
           path,
-          ts,
-          index,
+          property,
+          transform,
+          enterKey,
       });
     }
-
-    dispatch({
-        type: UIBUILDER_UPDATE_NODE_TRANSFORM,
-        sourceId,
-        path,
-        property,
-        transform,
-        enterKey,
-    });
   }
 }
 

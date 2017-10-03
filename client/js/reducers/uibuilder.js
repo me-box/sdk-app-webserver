@@ -1,5 +1,4 @@
-
-import {UIBUILDER_PROVENANCE, UIBUILDER_PROVENANCE_SELECT_MAPPING, UIBUILDER_RECORD_PATH,UIBUILDER_INCREMENT_TICK,UIBUILDER_INIT, UIBUILDER_REMOVE_NODE, UIBUILDER_CLONE_NODE, UIBUILDER_UPDATE_NODE_ATTRIBUTE, UIBUILDER_UPDATE_NODE_STYLE, UIBUILDER_UPDATE_NODE_TRANSFORM,UIBUILDER_ADD_MAPPING, APP_MESSAGE} from '../constants/ActionTypes';
+import {UIBUILDER_PROVENANCE, UIBUILDER_PROVENANCE_SELECT_MAPPING, UIBUILDER_RECORD_PATH, UIBUILDER_INCREMENT_TICK, UIBUILDER_INIT, UIBUILDER_REMOVE_NODE, UIBUILDER_CLONE_NODE,UIBUILDER_CLONE_NODE_WITH_STYLE, UIBUILDER_CLONE_NODE_WITH_ATTRIBUTE, UIBUILDER_CLONE_NODE_WITH_TRANSFORM,UIBUILDER_UPDATE_NODE_ATTRIBUTE, UIBUILDER_UPDATE_NODE_STYLE, UIBUILDER_UPDATE_NODE_TRANSFORM,UIBUILDER_ADD_MAPPING, APP_MESSAGE} from '../constants/ActionTypes';
 import {generateId, scalePreservingOrigin, componentsFromTransform,originForNode} from '../utils/utils';
 
 const initialState = {
@@ -8,9 +7,9 @@ const initialState = {
   nodesById: {},
   templatesById: {},
   templates: [],
-  mappings: {},   
+  mappings: {}, 
   ticks : {},
-  canvasdimensions: {w:0, h:0},    
+  canvasdimensions: {w:1, h:1},  
   tree: {},  
   provenance: [],
   datapath: {},
@@ -97,67 +96,81 @@ const _cloneStaticTemplates = (templates, blueprints)=>{
     },{nodes:[], nodesByKey: {}, nodesById:{}});
 }
 
-const _updateNodeAttributes = (state, action)=>{
+const _updateNodeAttributes = (nodesByKey, nodesById, action)=>{
  
-  if (!state.nodesById)
-    return state;
+  if (!nodesById)
+    return {};
 
   
   const templateId = action.path[action.path.length-1];
   const subkey     = action.enterKey ? action.enterKey : "root";
-  const nodeId     = state.nodesByKey[templateId] ? state.nodesByKey[templateId][subkey] : null;
+  const nodeId     = nodesByKey[templateId] ? nodesByKey[templateId][subkey] : null;
 
   //should always have a nodeId, as clone node was dispatched first
   if (nodeId){
-     const n = Object.assign({}, state.nodesById[nodeId], {[action.property]:action.value});
-     return Object.assign({}, state, {nodesById: Object.assign({}, state.nodesById, {[nodeId] : n})});
+     const n =  {
+                  ...nodesById[nodeId], 
+                  [action.property]:action.value
+                }
+
+     return {[nodeId] : n}
   }
 
-  return state;
+  return {};
 }
 
-
-const _updateNodeStyles = (state, action)=>{
+const _updateNodeStyles = (nodesByKey, nodesById, action)=>{
   
-  if (!state.nodesById)
-    return state;
+  if (!nodesById)
+    return {};
 
   //const [templateId, ...rest] = action.path;
   const templateId = action.path[action.path.length-1];
   const subkey     = action.enterKey ? action.enterKey : "root";
-  const nodeId     = state.nodesByKey[templateId] ? state.nodesByKey[templateId][subkey] : null;
+  const nodeId     = nodesByKey[templateId] ? nodesByKey[templateId][subkey] : null;
 
   //if we already have an entry for this node and its subkey, then just update it
   if (nodeId){
-     const node = state.nodesById[nodeId];
+     const node = nodesById[nodeId];
+     
      const style = node.style || {};
-     const n = Object.assign({}, state.nodesById[nodeId], {
-                                                              style: Object.assign({}, style, {[action.property]:action.value})
-                                                           });
+     
+     const n =  {
+                  ...nodesById[nodeId], 
+                  style: {
+                        ...style, 
+                        [action.property]:action.value
+                  }
+                }
 
-     return Object.assign({}, state, {nodesById: Object.assign({}, state.nodesById, {[nodeId] : n})});
+     return {[nodeId] : n}
   }
-
-  return state;
+  return {};
 }
 
-const _updateNodeTransforms = (state, action)=>{
-  if (!state.nodesById)
-    return state;
+const _updateNodeTransforms = (nodesByKey, nodesById, action)=>{
+  if (!nodesById)
+    return {};
 
   //const [templateId, ...rest] = action.path;
   const templateId = action.path[action.path.length-1];
   const subkey     = action.enterKey ? action.enterKey : "root";
-  const nodeId     = state.nodesByKey[templateId] ? state.nodesByKey[templateId][subkey] : null;
+  const nodeId     = nodesByKey[templateId] ? nodesByKey[templateId][subkey] : null;
 
   
   //if we already have an entry for this node and its subkey, then just update it
   if (nodeId){
-     const transform = _createTransform(state.nodesById[nodeId], action.property, action.transform);
-     const n = Object.assign({}, state.nodesById[nodeId], {transform});
-     return Object.assign({}, state, {nodesById: Object.assign({}, state.nodesById, {[nodeId] : n})});
+     const transform = _createTransform(nodesById[nodeId], action.property, action.transform);
+     
+     const n = {  
+                  ...nodesById[nodeId], 
+                  transform:transform,
+               };
+
+     return   {[nodeId] : n}
   }
-  return state;
+
+  return {};
 }
 
 const _cloneNode = (state, action)=>{
@@ -168,20 +181,35 @@ const _cloneNode = (state, action)=>{
     const {node, children, lookup} = _createNode(state.templatesById[templateId], state.templatesById, action.ts, action.index);
     
 
-    const k = Object.assign({}, state.nodesByKey[templateId] || {}, {[subkey]:node.id});
+    const k = {
+                ...state.nodesByKey[templateId] || {}, 
+                [subkey]:node.id
+              };
 
     const nbk = Object.keys(lookup).reduce((acc,key)=>{
-                      acc[key] = Object.assign({}, state.nodesByKey[key]||{}, {[subkey]:lookup[key]});
+                      acc[key] = {
+                                    ...state.nodesByKey[key]||{}, 
+                                    [subkey]:lookup[key]
+                                  };
                       return acc;
                 },{});
 
 
-    return Object.assign({}, state, {
-                                          nodes: [...state.nodes, node.id],
-                                          nodesById:  {...state.nodesById, ...{[node.id]:node}, ...children},
-                                          nodesByKey: {...state.nodesByKey, ...{[templateId]: k}, ...nbk},
-                                      });
+    return  {
+      nodes: [...state.nodes, node.id],
+      
+      nodesById:  {
+                    ...state.nodesById, 
+                    [node.id]:node, 
+                    ...children
+                  },
 
+      nodesByKey: {
+                    ...state.nodesByKey, 
+                    [templateId]: k, 
+                    ...nbk
+                  },
+    }
 }
 
 const _combine = (newtransform="", oldtransform="")=>{
@@ -230,8 +258,8 @@ function viz(state = initialState, action) {
   switch (action.type) {
 
     case UIBUILDER_INIT:
-      const {nodes, nodesById, nodesByKey} = _cloneStaticTemplates(action.templates, action.templatesById);
 
+      const {nodes, nodesById, nodesByKey} = _cloneStaticTemplates(action.templates, action.templatesById);
 
       const _state = Object.assign({}, state, {
                                                 nodes,
@@ -243,9 +271,9 @@ function viz(state = initialState, action) {
                                                 tree: action.tree,
                                               });
       return _state;
-
   
   case UIBUILDER_REMOVE_NODE:
+      
 
       const templateId = action.path[action.path.length-1];
 
@@ -268,22 +296,89 @@ function viz(state = initialState, action) {
                                                 },{})
                             });
 
+  //clone and update style all in one go.
+  case  UIBUILDER_CLONE_NODE_WITH_STYLE:
+      const _stylecloned = _cloneNode(state, action);
+      return {
+          ...state,
+          ..._stylecloned,
+          nodesById:{
+            ..._stylecloned.nodesById,
+            ..._updateNodeStyles(_stylecloned.nodesByKey, _stylecloned.nodesById, action)
+          }
+      }
+      return state;
+  
+  //clone and update attributes all in one go.
+  case  UIBUILDER_CLONE_NODE_WITH_ATTRIBUTE:
+      const _attrcloned = _cloneNode(state, action);
+      return {
+          ...state,
+          ..._attrcloned,
+          nodesById:{
+            ..._attrcloned.nodesById,
+            ..._updateNodeAttributes(_attrcloned.nodesByKey, _attrcloned.nodesById, action)
+          }
+      }
+      return state;
+
+  //clone and update transform all in one go.
+  case  UIBUILDER_CLONE_NODE_WITH_TRANSFORM:
+      const _transformcloned = _cloneNode(state, action);
+      return {
+          ...state,
+          ..._transformcloned,
+          nodesById:{
+            ..._transformcloned.nodesById,
+            ..._updateNodeTransforms(_transformcloned.nodesByKey, _transformcloned.nodesById, action)
+          }
+      }
+      return state;
+
+
   case UIBUILDER_CLONE_NODE:
-      return Object.assign({}, state, _cloneNode(state, action));
+     
+      return  {
+                ...state, 
+                ..._cloneNode(state, action)
+              };
 
   case UIBUILDER_UPDATE_NODE_ATTRIBUTE: 
-      return Object.assign({}, state, _updateNodeAttributes(state, action));
+      return  { 
+                ...state, 
+                nodesById: {
+                    ...state.nodesById, 
+                    ..._updateNodeAttributes(state.nodesByKey, state.nodesById, action)
+                }
+              };
 
   case UIBUILDER_UPDATE_NODE_STYLE: 
-      return Object.assign({}, state, _updateNodeStyles(state, action));
+      return {
+                ...state, 
+                nodesById:{
+                   ...state.nodesById,
+                   ..._updateNodeStyles(state.nodesByKey, state.nodesById, action)
+                }
+              };
+
 
   case UIBUILDER_UPDATE_NODE_TRANSFORM:
-      return Object.assign({}, state, _updateNodeTransforms(state, action));
+      return {  
+                ...state, 
+                nodesById:{
+                  ...state.nodesById,
+                  ..._updateNodeTransforms(state.nodesByKey, state.nodesById, action)
+                }
+              };
 
-  case UIBUILDER_ADD_MAPPING:
-      
-      const _s =  Object.assign({}, state, {mappings: Object.assign({}, state.mappings, {[action.datasourceId]: [...(state.mappings[action.datasourceId]||[]), action.map]})});
-      return _s;
+  case UIBUILDER_ADD_MAPPING:     
+      return  {
+                ...state, 
+                mappings: {
+                    ...state.mappings, 
+                    [action.datasourceId]: [...(state.mappings[action.datasourceId]||[]), action.map]     
+                }
+              };
 
   case UIBUILDER_PROVENANCE:
 
@@ -301,6 +396,7 @@ function viz(state = initialState, action) {
                 ...state,
                 selectedMapping: {mappingId: action.mapping.mappingId, sourceId: action.mapping.sourceId}
              }
+
 
   //record by mapping id so that the paths taken to create this mapping are not lost when new data comes in.
   case UIBUILDER_RECORD_PATH:
