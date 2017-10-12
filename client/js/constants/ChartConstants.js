@@ -1,5 +1,5 @@
 export const MAXREADINGS = 10;
-export const TOPPADDING = 10;
+export const TOPPADDING = 50;
 export const LEFTPADDING = 60;
 export const RIGHTPADDING = 40;
 export const CHARTXPADDING = 20;

@@ -20,10 +20,21 @@ const addGaugeData = (state, action) =>{
 	}
 }
 
-//TODO: this will just grow and grow.....!
 const append = (state = {data:[]}, action)=>{
 	const {options, values} = action.data;
-	return (Object.assign({}, ...state, {data: [...state.data || [], values], options: options, view:action.view, sourceId: action.sourceId, id: action.id, name: action.name}));
+	const {view, sourceId, id, name} = action;
+	
+	//return (Object.assign({}, ...state, {data: [...state.data || [], values], options: options, view:action.view, sourceId: action.sourceId, id: action.id, name: action.name}));
+
+	return {
+		...state,
+		data : options.maxreadings ? [...state.data || [], values].slice(-options.maxreadings) : [...state.data || [], values],
+		options,
+		view,
+		sourceId,
+		id,
+		name,
+	}
 }
 
 const replace = (state = {data:{}}, action)=>{
@@ -37,7 +48,7 @@ const gauge = (state = {data:[], min:999999, max:-999999}, action)=>{
   	case APP_MESSAGE:
   		const {values, options} = action.data;
 
-  		if (values.type === "data"){ //TODO HANDLE INIT TYPES!
+  		if (values.type === "data"){ 
     		return Object.assign({}, ...state, {	data: addGaugeData(state, action),
     												options: options,
 													view: action.view,
@@ -118,7 +129,7 @@ export default function apps(state = {}, action) {
 	  
 	  case APP_RESET:
 	  	return {};
-	  	
+
 	  case APP_REMOVED:
 	  	
 	  	return Object.keys(state).reduce((acc, key)=>{
@@ -128,9 +139,7 @@ export default function apps(state = {}, action) {
 	  		return acc;
 	  	},{})
 	  
-	  
-	  //purge any apps that don't exist in layout...
-	  
+	   
 	  case APP_MESSAGE:
 	  
 	  	
