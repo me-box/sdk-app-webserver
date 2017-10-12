@@ -7,14 +7,14 @@ const colours = ["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e
 const lookup = [];
 
 const _colourFor = (id)=>{
-	let index = lookup.indexOf(id);
+  let index = lookup.indexOf(id);
 
-  	if (index === -1){
-     	lookup.push(id);
-     	index = lookup.length - 1;
-  	}
-	
-  	return colours[index%colours.length];
+    if (index === -1){
+      lookup.push(id);
+      index = lookup.length - 1;
+    }
+  
+    return colours[index%colours.length];
 }
 
 const radians = (degrees)=>{
@@ -27,130 +27,131 @@ const degrees = (radians)=>{
 
 export default class Gauge extends Component {
   
-    render(){
+  render(){
 
-        const {w,h,options, data} = this.props;
+    const {w,h,options, data} = this.props;
         
         
-        if (data.data.length < 0 )
-          return null;
-
-        const STROKEWIDTH      = 80;
-        const OUTERSTROKEWIDTH = 5;
-        const BORDERPADDING    = 30;
-		let {min,max} = data;
-		
-		
-		if (options && "min" in options){
-			min = options.min;
-		}
-		
-		if (options && "max" in options){
-			max = options.max;
-		}
-		
-        const lines = data.data.map((items,i)=>{
-            const props = {	...this.props, 
-            				data:items, 
-            				MIN: min, 
-            				MAX: max,
-            				p: (STROKEWIDTH*i*2) + OUTERSTROKEWIDTH, 
-            				STROKEWIDTH, 
-            				OUTERSTROKEWIDTH, 
-            				BORDERPADDING
-            				
-            				}
-            return <Line key={i} {...props} />
-        });
-        
-        let labels = [];
-        if (options.labels){
-        	var labelarray = options.labels.split(",");
-        	labels = labelarray.reduce((acc, label)=>{
-        		const [name,value] = label.split(":");
-        		if (name && value){
-        			
-        			
-        			if (value.trim() === "max"){
-        				acc.push({value:max, text:name});
-        			}
-        			else if (value.trim() === "min"){
-        				acc.push({value:min, text:name});
-        			}
-        			else if (!isNaN(parseFloat(value)) && isFinite(value)){
-        				acc.push({value:value, text:name});
-        			}
-        		}
-        		return acc;
-        	},[]);
-        }
-        
-		const markers = labels.map((marker)=>{
-			marker.value = Math.min(Math.max(min, marker.value),max);
-			return marker;
-		}).map((marker,i)=>{
-        	
-        	const from  = (i == 0) ? min : labels[i-1].value;
-        	
-        	const markerprops = {
-        		STROKEWIDTH,
-        		OUTERSTROKEWIDTH,
-        		BORDERPADDING,
-        		max,
-        		min,
-        		w,
-        		h,
-        		from: from,
-        		to: marker.value,
-        		text: marker.text,
-        	}
-        	
-        	return <Marker {...markerprops}/>
-        });
-        
-		const TITLESIZE = 30;
-		const textstyle = {
-                              textAnchor:"middle",
-                              fill: 'white',
-                              fontSize: TITLESIZE,
-                       }
-		
-		//const r = h > (w/2) ? (w-OUTERSTROKEWIDTH-STROKEWIDTH)/2 : (h-(STROKEWIDTH/2));
-        const r = h > (w/2) ? (w-OUTERSTROKEWIDTH-STROKEWIDTH)/2 : (h-(STROKEWIDTH/2));
-       
-        const textprops = {
-                                x:w/2,
-                                y:h-r-TITLESIZE-APP_TITLEBAR_HEIGHT,
-        }
-		
-        return <svg width={w} height={h}>  
-                 {lines}
-                 <g><text style={textstyle} {...textprops}> {options.title || ""} </text></g>
-                  {markers}      
-                </svg>
+    if (data.data.length < 0 )
+      return null;
+    
+    const TITLESIZE = 30;
+    const STROKEWIDTH  = 80;
+    const OUTERSTROKEWIDTH = 5;
+    const BORDERPADDING = 30;
+    
+    let {min,max} = data;
+    
+    
+   if (options && "min" in options){
+      min = options.min;
     }
+    
+    if (options && "max" in options){
+      max = options.max;
+    }
+    
+    const lines = data.data.map((items,i)=>{
+      const props = { ...this.props, 
+          data:items, 
+          MIN: min, 
+          MAX: max,
+          p: (STROKEWIDTH*i*2) + OUTERSTROKEWIDTH, 
+          STROKEWIDTH, 
+          OUTERSTROKEWIDTH, 
+          BORDERPADDING
+                    
+      }
+      return <Line key={i} {...props} />
+    });
+        
+    let labels = [];
+
+    if (options.labels){
+      const labelarray = options.labels.split(",");
+      labels = labelarray.reduce((acc, label)=>{
+        const [name,value] = label.split(":");
+        if (name && value){     
+          if (value.trim() === "max"){
+            acc.push({value:max, text:name});
+          }
+          else if (value.trim() === "min"){
+            acc.push({value:min, text:name});
+          }
+          else if (!isNaN(parseFloat(value)) && isFinite(value)){
+            acc.push({value:value, text:name});
+          }
+        }
+        return acc;
+      },[]);
+    }
+        
+    const markers = labels.map((marker)=>{
+      marker.value = Math.min(Math.max(min, marker.value),max);
+      return marker;
+    }).map((marker,i)=>{
+          
+      const from  = (i == 0) ? min : labels[i-1].value;
+          
+      const markerprops = {
+            STROKEWIDTH,
+            OUTERSTROKEWIDTH,
+            BORDERPADDING,
+            max,
+            min,
+            w,
+            h,
+            from: from,
+            to: marker.value,
+            text: marker.text,
+      }
+          
+      return <Marker {...markerprops}/>
+    });
+        
+  
+    const textstyle = {
+        textAnchor:"middle",
+        fill: 'white',
+        fontSize: TITLESIZE,
+    }
+    
+  
+    const r = h > (w/2) ? (w-OUTERSTROKEWIDTH-STROKEWIDTH)/2 : (h-(STROKEWIDTH/2));
+       
+    const textprops = {
+      x:w/2,
+      y:h-r-TITLESIZE-APP_TITLEBAR_HEIGHT - (options.labels ? 20 : 0),
+    }
+    
+    return <svg width={w} height={h}>  
+              {lines}
+              <g><text style={textstyle} {...textprops}> {options.title || ""} </text></g>
+              {markers}      
+            </svg>
+  }
 }
 
 
 class Marker extends Component {
-	
-	render(){
-	 
-	  const {STROKEWIDTH, OUTERSTROKEWIDTH, BORDERPADDING,  max, min, w, h, from, to, center, text} = this.props;
-	  
-	  const PADDING = OUTERSTROKEWIDTH;
-	  const FONTSIZE = 30;
-	  
+  
+  render(){
+   
+    const {STROKEWIDTH, OUTERSTROKEWIDTH, BORDERPADDING,  max, min, w, h, from, to, center, text} = this.props;
+    
+    const PADDING = OUTERSTROKEWIDTH;
+    const FONTSIZE = 30;
+    
       const r = h > (w/2) ? (w-PADDING-STROKEWIDTH)/2 + BORDERPADDING - OUTERSTROKEWIDTH : (h-(STROKEWIDTH/2)) + BORDERPADDING - OUTERSTROKEWIDTH;
-	 
-	  const angle = (value)=>{
+   
+    const angle = (value)=>{
         const divisor = max-min;
         return Math.PI - radians((value - min)  * (180/divisor));
       }
       
       
-	  const ADJUST = 0;
-	   
+    const ADJUST = 0;
+     
       const ypos = (value)=>{
         return h - ((r-ADJUST) * Math.sin(angle(value)));
       }
@@ -158,40 +159,40 @@ class Marker extends Component {
       const xpos = (value)=>{
         return w/2 + ((r-ADJUST) * Math.cos(angle(value)));
       }
-	
-	  const markerstyle = {
+  
+    const markerstyle = {
          fill: 'red',
          fillOpacity: 1.0,
          stroke: '#4d4d4d',
          strokeOpacity: 1.0,
          strokeWidth: '3px',
-	  }
-	  
-	  const markerstyle2 = {
+    }
+    
+    const markerstyle2 = {
          fill: 'green',
          fillOpacity: 1.0,
          stroke: '#4d4d4d',
          strokeOpacity: 1.0,
          strokeWidth: '3px',
-	  }
-	  
-	  const fromr = r-BORDERPADDING/2-ADJUST;
-	  const tor = r+BORDERPADDING/2-ADJUST;
-	  const theta = angle(from);
-	  const lineprops = {
-		  x1:w/2 + (fromr * Math.cos(theta)),
-		  y1: h - (fromr * Math.sin(theta)),
-		  x2: w/2 + (tor * Math.cos(theta)),
-		  y2: h - (tor * Math.sin(theta)),
+    }
+    
+    const fromr = r-BORDERPADDING/2-ADJUST;
+    const tor = r+BORDERPADDING/2-ADJUST;
+    const theta = angle(from);
+    const lineprops = {
+      x1:w/2 + (fromr * Math.cos(theta)),
+      y1: h - (fromr * Math.sin(theta)),
+      x2: w/2 + (tor * Math.cos(theta)),
+      y2: h - (tor * Math.sin(theta)),
       }
-	  
-	 const linestyle ={
+    
+   const linestyle ={
          stroke: '#4d4d4d',
          strokeOpacity: 1.0,
          strokeWidth: `3px`,
      }
-	
-		  
+  
+      
     const arcstyle = {
          fill: 'none',
          stroke: _colourFor(text),
@@ -200,17 +201,17 @@ class Marker extends Component {
     }
       
     
-	const xs = xpos(from);
-	const xe = xpos(to);
-	const ys = ypos(from); 
-	const ye = ypos(to);
-	
-	
- 	const path = `M ${xs} ${ys} A ${r-ADJUST},${r-ADJUST} 0 0,1 ${xe} ${ye}`;
-	const labelr = r - (BORDERPADDING/2) + 5;
-	const texttheta = angle(from + ((to-from) / 2));
-	
-	const textstyle = {
+  const xs = xpos(from);
+  const xe = xpos(to);
+  const ys = ypos(from); 
+  const ye = ypos(to);
+  
+  
+  const path = `M ${xs} ${ys} A ${r-ADJUST},${r-ADJUST} 0 0,1 ${xe} ${ye}`;
+  const labelr = r - (BORDERPADDING/2) + 5;
+  const texttheta = angle(from + ((to-from) / 2));
+  
+  const textstyle = {
         textAnchor:"middle",
         fill: 'white',
         fontSize: `${FONTSIZE}px`,
@@ -222,14 +223,14 @@ class Marker extends Component {
         transform: `translate(${w/2 + (labelr * Math.cos(texttheta))}, ${h -(labelr * Math.sin(texttheta))}) rotate(${90-degrees(texttheta)})`,
     } 
       
-    return  	<g>
-	  				
-	  				<path style={arcstyle} d={path}/>
-	  				<text style={textstyle} {...textprops}>{text}</text>
-	  				<line style={linestyle} {...lineprops} />  
-	  			</g>
-	
-	}
+    return    <g>
+            
+            <path style={arcstyle} d={path}/>
+            <text style={textstyle} {...textprops}>{text}</text>
+            <line style={linestyle} {...lineprops} />  
+          </g>
+  
+  }
 }
 
 class Line extends Component {
@@ -237,8 +238,8 @@ class Line extends Component {
   render() {
 
       const {MAX,data,options,w,h,p, STROKEWIDTH, OUTERSTROKEWIDTH,BORDERPADDING} = this.props;
-	  let {MIN} = this.props;
-	  
+    let {MIN} = this.props;
+    
       const TICKCOUNT = options.ticks || 10;
       const _TICKCOUNT = TICKCOUNT + 1;
 
@@ -433,3 +434,5 @@ class TickLabels extends Component {
           return <g>{tickcircles}</g>
     }
 }
+
+
