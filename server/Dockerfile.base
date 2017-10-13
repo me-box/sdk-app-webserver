@@ -15,3 +15,7 @@ COPY conf/package.json /usr/src/node-red/
 RUN npm install
 COPY conf/Node.js /usr/src/node-red/node_modules/node-red/red/runtime/nodes/
 COPY conf/settings.js /data
+
+WORKDIR /root
+COPY package.json .
+RUN npm install --production

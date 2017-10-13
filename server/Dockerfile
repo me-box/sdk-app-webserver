@@ -5,6 +5,8 @@ WORKDIR /root
 ADD static static
 ADD views views
 COPY build/bundle.js index.js
+COPY conf/start.sh /root
+RUN chmod a+x /root/start.sh
 
 #add the latest node-red databox nodes
 WORKDIR /data/nodes
