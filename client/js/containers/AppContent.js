@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {HEADER_TOOLBAR_HEIGHT,FOOTER_TOOLBAR_HEIGHT, APP_TITLEBAR_HEIGHT} from '../constants/ViewConstants';
 import { bindActionCreators } from 'redux';
 import '../../style/sass/style.scss';
@@ -25,7 +24,7 @@ function lookup(boxes, name){
             return _acc;
         }, acc);
 
-    },{row:-1,col:-1});
+    },{row:0,col:0});
 }
 
 class AppContent extends Component {
@@ -167,7 +166,7 @@ class AppContent extends Component {
 	    	
 	    });
 
-	    return <ReactCSSTransitionGroup className="container" style={flexcontainer} transitionName="flexitem" transitionEnterTimeout={500} transitionLeaveTimeout={300}>{applist}</ReactCSSTransitionGroup>
+	    return <div className="container" style={flexcontainer}>{applist}</div>
          	
 	}
 
