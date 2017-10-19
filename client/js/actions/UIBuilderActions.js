@@ -5,13 +5,11 @@ import {defaultCode, resolvePath} from '../utils/utils';
 import {hierarchy, tree as d3tree} from 'd3-hierarchy';
 import {TREEPADDING, TREEMARGIN} from '../constants/ViewConstants';
 
-const _function_for = {
 
-    "attribute"	: updateNodeAttribute,
-    
-    "transform"	: updateNodeTransform,
-    
-    "style"		: updateNodeStyle,
+const _function_for = {
+    "attribute" : updateNodeAttribute,
+    "transform" : updateNodeTransform,
+    "style"   : updateNodeStyle,
 }
 
 const _shouldClone = (path, enterKey, nodesByKey)=>{
@@ -29,13 +27,13 @@ const _shouldClone = (path, enterKey, nodesByKey)=>{
 }
 
 const _getNode = (nodesByKey, nodesById, enterKey, path)=>{
-	if (path && path.length >= 1){
-		const id 	  = path[path.length-1];
-		const key 	  = enterKey || "root";
-		const nodeId  = nodesByKey[id] ? nodesByKey[id][key] : null;
-		return nodeId ? nodesById[nodeId] : {};
-	}
-	return {};
+  if (path && path.length >= 1){
+    const id    = path[path.length-1];
+    const key     = enterKey || "root";
+    const nodeId  = nodesByKey[id] ? nodesByKey[id][key] : null;
+    return nodeId ? nodesById[nodeId] : {};
+  }
+  return {};
 }
 
 
@@ -57,16 +55,17 @@ const _parenttemplates = (templatesById)=>{
     });
 }
 
-function removeNode(sourceId, nodeId, path, enterKey){
+function removeNode(sourceId, nodeId, path){
   
    return {
       type: UIBUILDER_REMOVE_NODE,
       sourceId,
-      enterKey,
       nodeId,
       path,
    }
 }
+
+
 
 function cloneNode(sourceId:number, path:Array, enterKey, index){
  
@@ -150,7 +149,7 @@ function updateNodeTransform(sourceId:number, path:Array, property:string, trans
   
     if (_shouldClone(path, enterKey,  (getState().uibuilder[sourceId] || {}).nodesByKey)){
         
-        //console.log("YES - cloning!");
+
 
         dispatch({
             type: UIBUILDER_CLONE_NODE_WITH_TRANSFORM,
@@ -175,15 +174,13 @@ function updateNodeTransform(sourceId:number, path:Array, property:string, trans
   }
 }
 
-
-
 function addMapping(sourceId, datasourceId, map){
-	return {
-		type: UIBUILDER_ADD_MAPPING,
-		sourceId,
-    	datasourceId,
-		map,
-	}
+  return {
+    type: UIBUILDER_ADD_MAPPING,
+    sourceId,
+    datasourceId,
+    map,
+  }
 }
 
 function recordPath(sourceId, mappingId, datasourceId, data, result){
@@ -206,43 +203,41 @@ export function selectMapping(sourceId, mapping){
 }
 
 export function init(id){
-	
-	console.log(`in uibuilder init`);
+  
 
-	return function (dispatch, getState) {
-	
-		dispatch(networkAccess(`initing`));
-		console.log(`uibuilder: calling ./ui/init/${id}`);
-		request
-		  .get(`./ui/init/${id}`)
-		  .set('Accept', 'application/json')
-		  .end(function(err, res){
-			if (err){
-			  console.log(err);
-			  dispatch(networkError(`failed init`));
-			}else{
-			
-			  	dispatch(networkSuccess(`successfully inited!`));
-				console.log("uibuilder: init response")
-				console.log(JSON.stringify(res.body,null,4));
+  return function (dispatch, getState) {
+  
+    dispatch(networkAccess(`initing`));
+    console.log(`** calling ./ui/init/${id}`);
+    request
+      .get(`/ui/init/${id}`)
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+      if (err){
+        console.log(err);
+        dispatch(networkError(`failed init`));
+      }else{
+      
+        dispatch(networkSuccess(`successfully inited!`));
+        
+        if (res.body.init){
+        
+            const {templates, templatesById, mappings, transformers, canvasdimensions, tree} = res.body.init;
+           
+            dispatch({
+              type: UIBUILDER_INIT,
+              sourceId: id,
+              templates: templates,
+              templatesById: templatesById,
+              canvasdimensions,
+              tree,
+            });
 
-				if (res.body.init){
-					const {templates, mappings, transformers, canvasdimensions, tree} = res.body.init;
-
-			  		dispatch({
-			  			type: UIBUILDER_INIT,
-              			sourceId: id,
-			  			templates: _parenttemplates(templates),
-			  			templatesById: templates,
-              			canvasdimensions,
-              			tree,
-			  		});
-
-			  		dispatch(subscribeMappings(id, mappings, transformers));
-				}
-			}
-		 });
-	}
+            dispatch(subscribeMappings(id, mappings, transformers));
+        }
+      }
+     });
+  }
 }
 
 
@@ -251,8 +246,9 @@ export function assessForRemoval(nodesToCheck, data, count){
   return nodesToCheck.reduce((acc,item)=>{
       const {key,node} = item;
       const removeFn = node.exitFn ? Function("key", ...node.exitFn.params, node.exitFn.body) : (k,d,c)=>false;
+      
       const remove = removeFn(key,data,count,node);
-
+ 
       if (remove){
         acc.push({nodeId:node.id, key});
       }
@@ -261,75 +257,89 @@ export function assessForRemoval(nodesToCheck, data, count){
 }
 
 export function subscribeMappings(sourceId, mappings, transformers){
+  
+  console.log("subscribing mappings");
 
-	return (dispatch, getState)=>{
-    	
-    	
-	    for (let i = 0; i < mappings.length; i++){
-	      
-	      const fn = _function_for[mappings[i].ttype];
-	      
-		   	if (fn){
+  return (dispatch, getState)=>{
+      
+      //first check any nodes that need to expire
+      
+      for (let i = 0; i < mappings.length; i++){
+        
+        const fn = _function_for[mappings[i].ttype];
+        
+        if (fn){
 
-		        const onData = (data, count, mapping)=>{
-			       
-              
+          const onData = (data, count, mapping)=>{
+            
+            console.log("seen data");
 
-		          const {screen:{dimensions}} = getState();
-		            
-		          const {nodesByKey={}, nodesById={}, templatesById={}, canvasdimensions={w:dimensions.w,h:dimensions.h}} = getState().uibuilder[sourceId];
-		            
-		          //adjust dims for viewbox!
-		          const wratio = canvasdimensions.w/dimensions.w;
-		          const hratio = canvasdimensions.h/dimensions.h;
+            const {screen:{dimensions}} = getState();
+            
+            const {nodesByKey={}, nodesById={}, templatesById={}, canvasdimensions={w:dimensions.w,h:dimensions.h}} = getState().uibuilder[sourceId];
+            
 
-			        const {mappingId, from: {key},  to:{property}} = mapping;
-			        const template = templatesById[mapping.to.path[mapping.to.path.length-1]];
-              const value  = resolvePath(mapping.from.key, mapping.from.path, data);
-			        console.log("value:", value);
+             //adjust dims for viewbox!
+            const wratio = canvasdimensions.w/dimensions.w;
+            const hratio = canvasdimensions.h/dimensions.h;
 
-			        let shouldenter = true;
-			        let enterKey = null;
+            const {mappingId, from: {key},  to:{property}} = mapping;
 
-              //filter out metadata e.g. _path
-		          const _data = template.enterFn || template.exitFn ?  Object.keys(data).reduce((acc,key)=>{
-		            if (!key.startsWith("_")){
-		                  acc[key] = data[key];
-		            }
-		            return acc;
-		          },{}) : {};
+            console.log("fetching template", mapping.to.path[mapping.to.path.length-1]);
+            console.log(Object.keys(templatesById));
 
-		          if (template.enterFn){
-			            const {enter,key} = template.enterFn;
-			            shouldenter = Function(...enter.params, enter.body)(_data,count);
-			            enterKey =  Function(...key.params, key.body)(_data,count);
-			        }
-			   
-		          const nodestotestforexit = Object.keys(nodesByKey[template.id] || {}).reduce((acc,key)=>{
-		            const nodeId = nodesByKey[template.id][key];
-		            acc.push({key, node:nodesById[nodeId]});
-		            return acc;
-		          },[]);
+            const template = templatesById[mapping.to.path[mapping.to.path.length-1]];
+            
+            const value   = resolvePath(mapping.from.key, mapping.from.path, data);
+            
+            let shouldenter = true;
+            let enterKey = null;
 
-		          const toremove = assessForRemoval(nodestotestforexit, _data, count);
-		            
-		          toremove.forEach((item)=>{
-		            dispatch(removeNode(sourceId, item.nodeId, [template.id], item.key));
-		          });
-		            
-			        if (shouldenter){
-			            const transformer = transformers[mappingId] || defaultCode(key,property);
-                  
-		              const node = _getNode(nodesByKey, nodesById, enterKey, mapping.to.path); 
-			            const transform   = Function("key", key, "node", "i", "w", "h", transformer)(enterKey || "root", value, node, count, wratio*dimensions.w, hratio * dimensions.h);  
-			            dispatch(fn(sourceId, mapping.to.path,property,transform, enterKey, Date.now(), count));
-		              dispatch(recordPath(sourceId, mappingId, mapping.from.sourceId, data._path, transform));
-			        }
-		        }
-		        dispatch(addMapping(sourceId, mappings[i].from.sourceId, {mapping:mappings[i], onData}))
-		    }
-	    }
-	}
+            const _data = template.enterFn || template.exitFn ?  Object.keys(data).reduce((acc,key)=>{
+                if (!key.startsWith("_")){
+                   acc[key] = data[key];
+                }
+                return acc;
+            },{}) : {};
+            
+            if (template.enterFn){
+              const {enter,key} = template.enterFn;
+              shouldenter = Function(...enter.params, enter.body)(_data,count);
+              enterKey =  Function(...key.params, key.body)(_data,count);
+            }
+     
+
+            const nodestotestforexit = Object.keys(nodesByKey[template.id] || {}).reduce((acc,key)=>{
+              const nodeId = nodesByKey[template.id][key];
+              acc.push({key, node:nodesById[nodeId]});
+              return acc;
+            },[]);
+
+            
+            const toremove = assessForRemoval(nodestotestforexit, _data, count);
+            
+            toremove.forEach((item)=>{
+
+              dispatch(removeNode(sourceId, item.nodeId, [template.id], item.key));
+            });
+            
+            if (shouldenter){
+              const transformer = transformers[mappingId] || defaultCode(key,property);
+              const node = _getNode(nodesByKey, nodesById, enterKey, mapping.to.path); 
+              //this is getting quite big, so we should turn it into an object!
+              const transform   = Function("key", key, "node", "i", "w", "h", transformer)(enterKey || "root", value, node, count, wratio*dimensions.w, hratio * dimensions.h);  
+
+              dispatch(fn(sourceId, mapping.to.path,property,transform, enterKey, Date.now(), count));
+              dispatch(recordPath(sourceId, mappingId, mapping.from.sourceId, data._path, transform));
+            }
+          }
+
+
+
+          dispatch(addMapping(sourceId, mappings[i].from.sourceId, {mapping:mappings[i], onData}))
+        }
+      }
+  }
 }
 
 const _hexDecode = (hex)=>{
@@ -365,6 +375,7 @@ const _flip = (node, h)=>{
                                     });
 }
 
+
 export function closeProvenance(sourceId){
     return {
         type: UIBUILDER_PROVENANCE,
@@ -394,15 +405,15 @@ export function nodeClicked(sourceId, tid){
 
     
     const mappingIds = Object.keys(mappings).reduce((acc, key)=>{
-		const item = mappings[key];
-
-		//add sourceId
-
-		item.forEach((m)=>{
-		 if (m.mapping.to.path.indexOf(nid) != -1){
-		    acc.push({mappingId: m.mapping.mappingId, sourceId: m.mapping.from.sourceId});
-		  }
-		});
+      const item = mappings[key];
+      
+      //add sourceId
+      
+      item.forEach((m)=>{
+         if (m.mapping.to.path.indexOf(nid) != -1){
+            acc.push({mappingId: m.mapping.mappingId, sourceId: m.mapping.from.sourceId});
+          }
+      });
       
       return acc;
     },[]);
@@ -443,5 +454,3 @@ export function nodeClicked(sourceId, tid){
     }
   }
 }
-
-

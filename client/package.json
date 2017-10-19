@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "http-server -p 3000 .",
-    "build": "NODE_ENV=production webpack --config webpack.prod.config -p && cp ./static/*.js ../server/static",
+    "build": "NODE_ENV=production webpack --config webpack.prod.config -p",
     "watch": "webpack-dev-server --host 0.0.0.0 --port 9090 --hot --progress --colors"
   },
   "repository": {
