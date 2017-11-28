@@ -70,11 +70,12 @@ class UIBuilder extends Component {
 
   render() {
    
-    const {canvasdimensions, w, h, sourceId} = this.props;
- 
+    const {w, h, sourceId, canvasdimensions} = this.props;
+    const {w:_w, h:_h} = canvasdimensions || {w:0,h:0};
+
     return  <div>
               <div className="canvas" style={{width:"100%", height:"100%"}}>
-                <svg id="svgchart" viewBox={`0 0 ${canvasdimensions.w} ${canvasdimensions.h}`} width={w} height={h} preserveAspectRatio="xMinYMin slice">
+                <svg id="svgchart" viewBox={`0 0 ${_w} ${_h}`} width={w} height={h} preserveAspectRatio="xMinYMin slice">
                   {this.renderNodes()}  
                 </svg>
               </div>

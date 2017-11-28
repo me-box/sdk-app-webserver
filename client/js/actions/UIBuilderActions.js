@@ -210,7 +210,7 @@ export function init(id){
     dispatch(networkAccess(`initing`));
     console.log(`** calling ./ui/init/${id}`);
     request
-      .get(`/ui/init/${id}`)
+      .get(`./ui/init/${id}`)
       .set('Accept', 'application/json')
       .end(function(err, res){
       if (err){
@@ -241,7 +241,7 @@ export function init(id){
 }
 
 
-export function assessForRemoval(nodesToCheck, data, count){
+/*export function assessForRemoval(nodesToCheck, data, count){
   
   return nodesToCheck.reduce((acc,item)=>{
       const {key,node} = item;
@@ -254,11 +254,23 @@ export function assessForRemoval(nodesToCheck, data, count){
       }
       return acc;
   },[]);
+}*/
+
+export function assessForRemoval(nodesToCheck, data, count){
+  return nodesToCheck.reduce((acc, item)=>{
+    const {key, node, templateId, death} = item;
+    const removeFn = Function("key", "data","index","node", death.body)
+    const remove = removeFn(key,data,count,node);
+    if (remove){
+        acc.push({nodeId:node.id, templateId, key});
+    }
+    return acc;
+  },[]);
 }
 
-export function subscribeMappings(sourceId, mappings, transformers){
+export function subscribeMappings(sourceId, mappings=[], transformers){
+
   
-  console.log("subscribing mappings");
 
   return (dispatch, getState)=>{
       
@@ -271,9 +283,7 @@ export function subscribeMappings(sourceId, mappings, transformers){
         if (fn){
 
           const onData = (data, count, mapping)=>{
-            
-            console.log("seen data");
-
+         
             const {screen:{dimensions}} = getState();
             
             const {nodesByKey={}, nodesById={}, templatesById={}, canvasdimensions={w:dimensions.w,h:dimensions.h}} = getState().uibuilder[sourceId];
@@ -285,8 +295,6 @@ export function subscribeMappings(sourceId, mappings, transformers){
 
             const {mappingId, from: {key},  to:{property}} = mapping;
 
-            console.log("fetching template", mapping.to.path[mapping.to.path.length-1]);
-            console.log(Object.keys(templatesById));
 
             const template = templatesById[mapping.to.path[mapping.to.path.length-1]];
             
@@ -295,32 +303,64 @@ export function subscribeMappings(sourceId, mappings, transformers){
             let shouldenter = true;
             let enterKey = null;
 
-            const _data = template.enterFn || template.exitFn ?  Object.keys(data).reduce((acc,key)=>{
+            //const _data = template.enterFn || template.exitFn ?  Object.keys(data).reduce((acc,key)=>{
+            //    if (!key.startsWith("_")){
+            //       acc[key] = data[key];
+            //    }
+            //    return acc;
+            //},{}) : {};
+            
+            const _data = mapping.birth || mapping.death ?  Object.keys(data).reduce((acc,key)=>{
                 if (!key.startsWith("_")){
-                   acc[key] = data[key];
+                 acc[key] = data[key];
                 }
                 return acc;
             },{}) : {};
-            
-            if (template.enterFn){
+
+
+            /*if (template.enterFn){
+              console.log("template enterFn is", template.enterFn);
+
               const {enter,key} = template.enterFn;
+              console.log("enter is", enter);
+              console.log("key is", key);
+
+              shouldenter = Function(...enter.params, enter.body)(_data,count);
+              enterKey =  Function(...key.params, key.body)(_data,count);
+            }*/
+
+            if (mapping.birth){
+              const {enter,key} = mapping.birth;
               shouldenter = Function(...enter.params, enter.body)(_data,count);
               enterKey =  Function(...key.params, key.body)(_data,count);
             }
      
+            //check all the death functions for all mappings for each new item of data to assess whether should remove
+            const nodestotestforexit = mappings.filter(m=>m.death).reduce((acc, mapping)=>{
+               
+               const templateId = mapping.to.path[mapping.to.path.length-1];
+               
+               Object.keys(nodesByKey[templateId] || {}).reduce((acc,key)=>{
+                  const nodeId = nodesByKey[templateId][key];
+                  acc.push({key, node:nodesById[nodeId], templateId, death:mapping.death});
+                  return acc;
+               }, acc);
 
-            const nodestotestforexit = Object.keys(nodesByKey[template.id] || {}).reduce((acc,key)=>{
+               return acc;
+            },[]);
+
+            const toremove = assessForRemoval(nodestotestforexit, _data, count);
+
+            /*const nodestotestforexit = Object.keys(nodesByKey[template.id] || {}).reduce((acc,key)=>{
               const nodeId = nodesByKey[template.id][key];
               acc.push({key, node:nodesById[nodeId]});
               return acc;
-            },[]);
-
+            },[]);*/
             
-            const toremove = assessForRemoval(nodestotestforexit, _data, count);
+            //const toremove = assessForRemoval(nodestotestforexit, _data, count);
             
             toremove.forEach((item)=>{
-
-              dispatch(removeNode(sourceId, item.nodeId, [template.id], item.key));
+              dispatch(removeNode(sourceId, item.nodeId, [item.templateId], item.key));
             });
             
             if (shouldenter){
@@ -333,9 +373,6 @@ export function subscribeMappings(sourceId, mappings, transformers){
               dispatch(recordPath(sourceId, mappingId, mapping.from.sourceId, data._path, transform));
             }
           }
-
-
-
           dispatch(addMapping(sourceId, mappings[i].from.sourceId, {mapping:mappings[i], onData}))
         }
       }
