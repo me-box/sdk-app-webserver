@@ -4,11 +4,12 @@ import express from 'express';
 import bodyparser from 'body-parser';
 import websocketinit from './comms/websocket';
 import ipcinit from './comms/ipc';
-import {lookup} from './datastore';
+import { lookup } from './datastore';
 import databox from 'node-databox';
 
+console.log("getting credentials");
 const credentials = databox.getHttpsCredentials();
-
+console.log("got credentials", credentials);
 const app = express();
 
 
@@ -25,53 +26,53 @@ app.use('/', express.static("static"));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
-const server = https.createServer(credentials, app);  
+const server = https.createServer(credentials, app);
 
 let PORT = 8080
 
-if (process.argv.length > 2){
-   PORT = parseInt(process.argv[2]);
+if (process.argv.length > 2) {
+  PORT = parseInt(process.argv[2]);
 }
 
 console.log("initing websockets");
-websocketinit(['databox'],server);
+websocketinit(['databox'], server);
 
 console.log("initing ipc");
 ipcinit();
 
-app.get('/', function(req,res){
+app.get('/', function (req, res) {
   res.render('index');
 });
 
-app.get('/ui/comms/channelID', function(req,res){
-    console.log("seen an incoming comms request!!");
-    res.send({channelID:'webapp'});         
+app.get('/ui/comms/channelID', function (req, res) {
+  console.log("seen an incoming comms request!!");
+  res.send({ channelID: 'webapp' });
 });
 
-app.get('/ui/init/:id', function(req,res){
-  
+app.get('/ui/init/:id', function (req, res) {
+
   console.log("seen an init for id " + req.params.id);
   const result = lookup(req.params.id);
 
-  if (result){
-    res.send({success:true, init:result});
+  if (result) {
+    res.send({ success: true, init: result });
   }
-  else{
-    res.send({success:false});
+  else {
+    res.send({ success: false });
   }
-});   
+});
 
-app.get('/ui', function(req,res){
-	console.log("seen a call to ui, sending back index!");
-	res.render('index');
+app.get('/ui', function (req, res) {
+  console.log("seen a call to ui, sending back index!");
+  res.render('index');
 });
 
 
 
 //redirect any failed routes to root
-app.use(function(req,res){
-  	console.log("failed route - redirecting to /")
-   	res.redirect("/");
+app.use(function (req, res) {
+  console.log("failed route - redirecting to /")
+  res.redirect("/");
 });
 
 console.log("LISTENING ON PORT " + PORT);

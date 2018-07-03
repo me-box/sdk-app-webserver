@@ -207,8 +207,9 @@ var _nodeDatabox2 = _interopRequireDefault(_nodeDatabox);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+console.log("getting credentials");
 var credentials = _nodeDatabox2.default.getHttpsCredentials();
-
+console.log("got credentials", credentials);
 var app = (0, _express2.default)();
 
 //var HTTPS_SERVER_CERT = process.env.HTTPS_SERVER_CERT || '';
