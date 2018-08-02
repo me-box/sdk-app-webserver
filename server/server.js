@@ -35,7 +35,7 @@ if (process.argv.length > 2) {
 }
 
 console.log("initing websockets");
-websocketinit(['databox'], server);
+websocketinit('databox', server);
 
 console.log("initing ipc");
 ipcinit();
@@ -75,5 +75,5 @@ app.use(function (req, res) {
   res.redirect("/");
 });
 
-console.log("LISTENING ON PORT " + PORT);
+console.log("STARTING SERVER AND LISTENING ON PORT " + PORT);
 server.listen(PORT);

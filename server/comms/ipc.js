@@ -1,51 +1,51 @@
-import {sendmessage} from './websocket';
+import { sendmessage } from './websocket';
 import net from 'net'
-import {savedata} from '../datastore';
+import { savedata } from '../datastore';
 import JsonSocket from 'json-socket';
 
 
-const handleMsg = (data)=>{
+const handleMsg = (data) => {
 	try {
-		const {type, msg} = data;
+		const { type, msg } = data;
 		let channel = "";
 
-		switch (type){
+		switch (type) {
 			case "message":
-				if (msg.type==="control"){
+				if (msg.type === "control") {
 					console.log("------------> seen an init message <-------------------------");
-					if (msg.payload && msg.payload.command === "init"){
-						console.log("*** SAVING DATA", JSON.stringify(msg.payload.data,null, 4));
+					if (msg.payload && msg.payload.command === "init") {
+						console.log("*** SAVING DATA", JSON.stringify(msg.payload.data, null, 4));
 						savedata(msg.payload.data.id, msg.payload.data);
 					}
 				}
 				channel = msg.channel;
-				delete(msg.channel); 
-				sendmessage(channel, "databox", "message", msg);
+				delete (msg.channel);
+				sendmessage(channel, "message", msg);
 				break;
 
 			default:
 				channel = msg.channel;
-				delete(msg.channel); 
-				sendmessage(channel, "databox", type, msg)
+				delete (msg.channel);
+				sendmessage(channel, type, msg)
 		}
-	}catch(err){
+	} catch (err) {
 		console.log("error parsing data", data);
 	}
 }
 
-export default function init(){
-	
+export default function init() {
+
 	console.log("INITING THE SERVER!");
 
 	var server = net.createServer();
 
-	server.on('connection', function(socket) { //This is a standard net.Socket
-    	socket = new JsonSocket(socket); //Now we've decorated the net.Socket to be a JsonSocket
-	    socket.on('message', function(message) {
-	       console.log("got a message!!");
-	       handleMsg(message);
-	    });
+	server.on('connection', function (socket) { //This is a standard net.Socket
+		socket = new JsonSocket(socket); //Now we've decorated the net.Socket to be a JsonSocket
+		socket.on('message', function (message) {
+			console.log("got a message!!");
+			handleMsg(message);
+		});
 	});
 
-    server.listen(8435, '0.0.0.0');
+	server.listen(8435, '0.0.0.0');
 }

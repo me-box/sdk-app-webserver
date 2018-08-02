@@ -83,53 +83,50 @@ var _socket2 = _interopRequireDefault(_socket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _namespaces = {};
-var connected = {};
+var _nsp = null;
 
-function init(nsps, server) {
+//TODO: are we ok to use the same namespace for all apps? (i.e. currently 'databox')
+function init(namespace, server) {
+
+  console.log("******** server, in init");
 
   var io = (0, _socket2.default)({ path: "/ui/socket.io" }).listen(server);
 
-  nsps.forEach(function (namespace) {
-    var nsp = io.of('/' + namespace);
+  console.log("*********** server: joining", '/' + namespace);
 
-    if (!_namespaces[namespace]) {
+  _nsp = io.of('/' + namespace);
 
-      _namespaces[namespace] = nsp;
+  _nsp.on('connection', function (socket) {
 
-      nsp.on('connection', function (socket) {
+    socket.on('join', function (app) {
+      console.log("--------------------- seen a join request, joining client to room ", app);
+      socket.join(app);
+      //return app; 
+    });
 
-        socket.on('join', function (app) {
-          console.log("seen a join request, joining client to room ", app);
-          socket.join(app);
-          //return app; 
-        });
+    socket.on('leave', function (app) {
+      console.log("leaving room: " + app);
+      socket.leave(app);
+    });
 
-        socket.on('leave', function (app) {
-          console.log("leaving room: " + app);
-          socket.leave(app);
-        });
-
-        socket.on('disconnect', function () {
-          console.log("webserver seen socket disconnect!");
-        });
-      });
-    }
+    socket.on('disconnect', function () {
+      console.log("webserver seen socket disconnect!");
+    });
   });
 }
 
 function sendmessages(rooms, namespace, event, message) {
   rooms.forEach(function (room) {
-    //console.log(`sending to room ${room} namespace ${namespace}`);
     this.sendmessage(room, namespace, event, message);
   }.bind(this));
   return rooms.length;
 };
 
-function sendmessage(room, namespace, event, message) {
-  if (_namespaces[namespace]) {
-    console.log('** websocket: sending to room ' + room + ' namespace ' + namespace + ' **');
-    _namespaces[namespace].to(room).emit(event, message);
+function sendmessage(room, event, message) {
+  if (_nsp) {
+    _nsp.to(room).emit(event, message);
+  } else {
+    console.log("not sending message, socket.io not setup");
   }
 };
 
@@ -234,7 +231,7 @@ if (process.argv.length > 2) {
 }
 
 console.log("initing websockets");
-(0, _websocket2.default)(['databox'], server);
+(0, _websocket2.default)('databox', server);
 
 console.log("initing ipc");
 (0, _ipc2.default)();
@@ -271,7 +268,7 @@ app.use(function (req, res) {
   res.redirect("/");
 });
 
-console.log("LISTENING ON PORT " + PORT);
+console.log("STARTING SERVER AND LISTENING ON PORT " + PORT);
 server.listen(PORT);
 
 /***/ }),
@@ -348,13 +345,13 @@ var handleMsg = function handleMsg(data) {
 				}
 				channel = msg.channel;
 				delete msg.channel;
-				(0, _websocket.sendmessage)(channel, "databox", "message", msg);
+				(0, _websocket.sendmessage)(channel, "message", msg);
 				break;
 
 			default:
 				channel = msg.channel;
 				delete msg.channel;
-				(0, _websocket.sendmessage)(channel, "databox", type, msg);
+				(0, _websocket.sendmessage)(channel, type, msg);
 		}
 	} catch (err) {
 		console.log("error parsing data", data);
