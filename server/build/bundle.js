@@ -77,42 +77,37 @@ exports.default = init;
 exports.sendmessages = sendmessages;
 exports.sendmessage = sendmessage;
 
-var _socket = __webpack_require__(8);
+var _ws = __webpack_require__(8);
 
-var _socket2 = _interopRequireDefault(_socket);
+var WebSocket = _interopRequireWildcard(_ws);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var _nsp = null;
+var wss = null;
 
 //TODO: are we ok to use the same namespace for all apps? (i.e. currently 'databox')
+//import socket from 'socket.io';
 function init(namespace, server) {
+  wss = new WebSocket.Server({ server: server, path: "/ui/ws" });
 
-  console.log("******** server, in init");
-
-  var io = (0, _socket2.default)({ path: "/ui/socket.io" }).listen(server);
-
-  console.log("*********** server: joining", '/' + namespace);
-
-  _nsp = io.of('/' + namespace);
-
-  _nsp.on('connection', function (socket) {
-
-    socket.on('join', function (app) {
+  /*console.log("******** server, in init");
+   const io = socket({ path: "/ui/socket.io" }).listen(server);
+   console.log("*********** server: joining", '/' + namespace)
+   _nsp = io.of('/' + namespace);
+   _nsp.on('connection', function (socket) {
+     socket.on('join', function (app) {
       console.log("--------------------- seen a join request, joining client to room ", app);
       socket.join(app);
       //return app; 
     });
-
-    socket.on('leave', function (app) {
+     socket.on('leave', function (app) {
       console.log("leaving room: " + app);
       socket.leave(app);
     });
-
-    socket.on('disconnect', function () {
+     socket.on('disconnect', function () {
       console.log("webserver seen socket disconnect!");
     });
-  });
+   });*/
 }
 
 function sendmessages(rooms, namespace, event, message) {
@@ -122,12 +117,14 @@ function sendmessages(rooms, namespace, event, message) {
   return rooms.length;
 };
 
-function sendmessage(room, event, message) {
-  if (_nsp) {
-    _nsp.to(room).emit(event, message);
-  } else {
-    console.log("not sending message, socket.io not setup");
-  }
+function sendmessage(message) {
+  console.log("sending message", message);
+  wss.send(message);
+  //if (_nsp) {
+  //  _nsp.to(room).emit(event, message);
+  //} else {
+  //  console.log("not sending message, socket.io not setup");
+  // }
 };
 
 /***/ }),
@@ -299,7 +296,7 @@ module.exports = require("body-parser");
 /* 8 */
 /***/ (function(module, exports) {
 
-module.exports = require("socket.io");
+module.exports = require("ws");
 
 /***/ }),
 /* 9 */
@@ -345,13 +342,13 @@ var handleMsg = function handleMsg(data) {
 				}
 				channel = msg.channel;
 				delete msg.channel;
-				(0, _websocket.sendmessage)(channel, "message", msg);
+				(0, _websocket.sendmessage)(msg); //channel, "message", msg);
 				break;
 
 			default:
 				channel = msg.channel;
 				delete msg.channel;
-				(0, _websocket.sendmessage)(channel, type, msg);
+				(0, _websocket.sendmessage)(msg); //channel, type, msg)
 		}
 	} catch (err) {
 		console.log("error parsing data", data);

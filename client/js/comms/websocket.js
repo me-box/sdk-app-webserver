@@ -1,4 +1,4 @@
-import io from 'socket.io-client';
+//import io from 'socket.io-client';
 import { newMessage } from '../actions/AppActions';
 
 export default function init(namespace, appId, dispatch) {
@@ -14,17 +14,28 @@ export default function init(namespace, appId, dispatch) {
     }
   }
 
+  console.log("new version of sdk-webserver, creating websocket!");
+
   console.log(`initing socket with /${namespace} and path ${pathname}/ui/socket.io`);
 
-  const socket = io('/' + namespace, { path: `${pathname}/ui/socket.io` });
+  let socket = new WebSocket(`wss://${window.location.host}${pathname}/ui/ws`);
 
-  socket.on("connect", function () {
-    console.log(`---> seen connect from server: ${appId} <---`);
-    socket.emit("join", appId);
-  });
+  socket.onopen = function (evt) {
+    console.log(`successfully connected to server websocket`);
+  };
 
-  socket.on("message", function (data) {
-    dispatch(newMessage(data));
+  socket.onclose = function (evt) {
+    console.log("socket close");
+    evt.close();
+  };
+
+  socket.onerror = function (evt) {
+    console.log("websocket ERROR", evt.data);
+  };
+
+  socket.onmessage = (function (evt) {
+    console.log("received data", evt.data);
+    dispatch(newMessage(evt.data));
   });
 
 };

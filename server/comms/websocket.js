@@ -1,10 +1,13 @@
-import socket from 'socket.io';
-let _nsp = null;
+//import socket from 'socket.io';
+import * as WebSocket from "ws";
+
+let wss = null
 
 //TODO: are we ok to use the same namespace for all apps? (i.e. currently 'databox')
 export default function init(namespace, server) {
+  wss = new WebSocket.Server({ server, path: "/ui/ws" });
 
-  console.log("******** server, in init");
+  /*console.log("******** server, in init");
 
   const io = socket({ path: "/ui/socket.io" }).listen(server);
 
@@ -29,8 +32,9 @@ export default function init(namespace, server) {
       console.log("webserver seen socket disconnect!");
     });
 
-  });
+  });*/
 }
+
 
 export function sendmessages(rooms, namespace, event, message) {
   rooms.forEach(function (room) {
@@ -39,10 +43,12 @@ export function sendmessages(rooms, namespace, event, message) {
   return rooms.length;
 };
 
-export function sendmessage(room, event, message) {
-  if (_nsp) {
-    _nsp.to(room).emit(event, message);
-  } else {
-    console.log("not sending message, socket.io not setup");
-  }
+export function sendmessage(message) {
+  console.log("sending message", message);
+  wss.send(message);
+  //if (_nsp) {
+  //  _nsp.to(room).emit(event, message);
+  //} else {
+  //  console.log("not sending message, socket.io not setup");
+  // }
 };

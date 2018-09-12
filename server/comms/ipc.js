@@ -20,13 +20,13 @@ const handleMsg = (data) => {
 				}
 				channel = msg.channel;
 				delete (msg.channel);
-				sendmessage(channel, "message", msg);
+				sendmessage(msg);//channel, "message", msg);
 				break;
 
 			default:
 				channel = msg.channel;
 				delete (msg.channel);
-				sendmessage(channel, type, msg)
+				sendmessage(msg);//channel, type, msg)
 		}
 	} catch (err) {
 		console.log("error parsing data", data);
