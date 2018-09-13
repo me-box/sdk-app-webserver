@@ -48,7 +48,11 @@ export default function listen(sender) {
 		socket.on('message', function (data) {
 			console.log("ipc: got a message!!");
 			const { type, msg } = data;
-			sender.sendmessage(data);
+			try {
+				sender.sendmessage(JSON.stringify(msg));
+			} catch (err) {
+				console.log("error stringiying msg", msg)
+			}
 			//handleMsg(message);
 		});
 	});

@@ -419,7 +419,11 @@ function listen(sender) {
 			var type = data.type,
 			    msg = data.msg;
 
-			sender.sendmessage(data);
+			try {
+				sender.sendmessage(JSON.stringify(msg));
+			} catch (err) {
+				console.log("error stringiying msg", msg);
+			}
 			//handleMsg(message);
 		});
 	});
