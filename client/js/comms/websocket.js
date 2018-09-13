@@ -34,8 +34,8 @@ export default function init(namespace, appId, dispatch) {
   };
 
   socket.onmessage = (function (evt) {
-    console.log("received data", evt.data);
-    dispatch(newMessage(evt.data));
+    console.log("received data", JSON.parse(evt.data));
+    dispatch(newMessage(JSON.parse(evt.data)));
   });
 
 };
