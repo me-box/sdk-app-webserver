@@ -5,6 +5,9 @@ import JsonSocket from 'json-socket';
 
 
 const handleMsg = (data) => {
+
+	console.log("handling message", data);
+
 	try {
 		const { type, msg } = data;
 		let channel = "";
@@ -18,18 +21,19 @@ const handleMsg = (data) => {
 						savedata(msg.payload.data.id, msg.payload.data);
 					}
 				}
-				channel = msg.channel;
-				delete (msg.channel);
+				//channel = msg.payload.channel;
+				//delete (msg.payload.channel);
 				sendmessage(msg);//channel, "message", msg);
 				break;
 
 			default:
-				channel = msg.channel;
-				delete (msg.channel);
+				//channel = msg.payload.channel;
+				//delete (msg.payload.channel);
 				sendmessage(msg);//channel, type, msg)
 		}
 	} catch (err) {
 		console.log("error parsing data", data);
+		console.log(err);
 	}
 }
 

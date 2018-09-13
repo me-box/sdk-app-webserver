@@ -77,19 +77,26 @@ exports.default = init;
 exports.sendmessages = sendmessages;
 exports.sendmessage = sendmessage;
 
-var _ws = __webpack_require__(8);
+var _ws2 = __webpack_require__(8);
 
-var WebSocket = _interopRequireWildcard(_ws);
+var WebSocket = _interopRequireWildcard(_ws2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var wss = null;
+var ws = null;
 
 //TODO: are we ok to use the same namespace for all apps? (i.e. currently 'databox')
 //import socket from 'socket.io';
 function init(namespace, server) {
-  wss = new WebSocket.Server({ server: server, path: "/ui/ws" });
+  console.log("*************** initing websocket!! *************");
+  var wss = new WebSocket.Server({ server: server, path: "/ui/ws" });
 
+  wss.on("connection", function (_ws) {
+    ws = _ws;
+    console.log("created websocket!");
+  });
+
+  console.log("done!");
   /*console.log("******** server, in init");
    const io = socket({ path: "/ui/socket.io" }).listen(server);
    console.log("*********** server: joining", '/' + namespace)
@@ -119,7 +126,11 @@ function sendmessages(rooms, namespace, event, message) {
 
 function sendmessage(message) {
   console.log("sending message", message);
-  wss.send(message);
+  try {
+    ws.send(message);
+  } catch (err) {
+    console.log("websocket, error sending", err);
+  }
   //if (_nsp) {
   //  _nsp.to(room).emit(event, message);
   //} else {
@@ -325,6 +336,9 @@ var _jsonSocket2 = _interopRequireDefault(_jsonSocket);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var handleMsg = function handleMsg(data) {
+
+	console.log("handling message", data);
+
 	try {
 		var type = data.type,
 		    msg = data.msg;
@@ -340,18 +354,19 @@ var handleMsg = function handleMsg(data) {
 						(0, _datastore.savedata)(msg.payload.data.id, msg.payload.data);
 					}
 				}
-				channel = msg.channel;
-				delete msg.channel;
+				//channel = msg.payload.channel;
+				//delete (msg.payload.channel);
 				(0, _websocket.sendmessage)(msg); //channel, "message", msg);
 				break;
 
 			default:
-				channel = msg.channel;
-				delete msg.channel;
+				//channel = msg.payload.channel;
+				//delete (msg.payload.channel);
 				(0, _websocket.sendmessage)(msg); //channel, type, msg)
 		}
 	} catch (err) {
 		console.log("error parsing data", data);
+		console.log(err);
 	}
 };
 
