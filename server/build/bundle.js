@@ -73,58 +73,97 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = init;
-exports.sendmessages = sendmessages;
-exports.sendmessage = sendmessage;
 
-var _ws2 = __webpack_require__(8);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ws2 = __webpack_require__(9);
 
 var WebSocket = _interopRequireWildcard(_ws2);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var ws = null;
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var Sender = function () {
+  function Sender(server) {
+    var _this = this;
+
+    _classCallCheck(this, Sender);
+
+    this.ws = null;
+
+    var wss = new WebSocket.Server({ server: server, path: "/ui/ws" });
+
+    //assume only ever one client!
+    wss.on("connection", function (_ws) {
+      _this.ws = _ws;
+      console.log("created websocket!");
+    });
+  }
+
+  _createClass(Sender, [{
+    key: "sendmessage",
+    value: function sendmessage(message) {
+      console.log("ws: sending message", message);
+      if (this.ws != null) {
+        try {
+          this.ws.send(message);
+        } catch (err) {
+          console.log("websocket, error sending", err);
+        }
+      } else {
+        console.log("not sending, ws not set up!");
+      }
+    }
+  }]);
+
+  return Sender;
+}();
+
+/*
 //TODO: are we ok to use the same namespace for all apps? (i.e. currently 'databox')
-//import socket from 'socket.io';
-function init(namespace, server) {
+export default function init(namespace, server) {
   console.log("*************** initing websocket!! *************");
-  var wss = new WebSocket.Server({ server: server, path: "/ui/ws" });
 
-  wss.on("connection", function (_ws) {
-    ws = _ws;
-    console.log("created websocket!");
-  });
 
   console.log("done!");
   /*console.log("******** server, in init");
-   const io = socket({ path: "/ui/socket.io" }).listen(server);
-   console.log("*********** server: joining", '/' + namespace)
-   _nsp = io.of('/' + namespace);
-   _nsp.on('connection', function (socket) {
-     socket.on('join', function (app) {
+
+  const io = socket({ path: "/ui/socket.io" }).listen(server);
+
+  console.log("*********** server: joining", '/' + namespace)
+
+  _nsp = io.of('/' + namespace);
+
+  _nsp.on('connection', function (socket) {
+
+    socket.on('join', function (app) {
       console.log("--------------------- seen a join request, joining client to room ", app);
       socket.join(app);
       //return app; 
     });
-     socket.on('leave', function (app) {
+
+    socket.on('leave', function (app) {
       console.log("leaving room: " + app);
       socket.leave(app);
     });
-     socket.on('disconnect', function () {
+
+    socket.on('disconnect', function () {
       console.log("webserver seen socket disconnect!");
     });
-   });*/
+
+  });
 }
 
-function sendmessages(rooms, namespace, event, message) {
+
+export function sendmessages(rooms, namespace, event, message) {
   rooms.forEach(function (room) {
     this.sendmessage(room, namespace, event, message);
   }.bind(this));
   return rooms.length;
 };
 
-function sendmessage(message) {
+export function sendmessage(message) {
   console.log("sending message", message);
   try {
     ws.send(message);
@@ -137,6 +176,10 @@ function sendmessage(message) {
   //  console.log("not sending message, socket.io not setup");
   // }
 };
+*/
+
+
+exports.default = Sender;
 
 /***/ }),
 /* 1 */
@@ -196,11 +239,7 @@ var _bodyParser = __webpack_require__(7);
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
 
-var _websocket = __webpack_require__(0);
-
-var _websocket2 = _interopRequireDefault(_websocket);
-
-var _ipc = __webpack_require__(9);
+var _ipc = __webpack_require__(8);
 
 var _ipc2 = _interopRequireDefault(_ipc);
 
@@ -209,6 +248,10 @@ var _datastore = __webpack_require__(1);
 var _nodeDatabox = __webpack_require__(12);
 
 var _nodeDatabox2 = _interopRequireDefault(_nodeDatabox);
+
+var _websocket = __webpack_require__(0);
+
+var _websocket2 = _interopRequireDefault(_websocket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -239,10 +282,10 @@ if (process.argv.length > 2) {
 }
 
 console.log("initing websockets");
-(0, _websocket2.default)('databox', server);
-
+//websocketinit('databox', server);
+var sender = new _websocket2.default(server);
 console.log("initing ipc");
-(0, _ipc2.default)();
+(0, _ipc2.default)(sender);
 
 app.get('/', function (req, res) {
   res.render('index');
@@ -305,12 +348,6 @@ module.exports = require("body-parser");
 
 /***/ }),
 /* 8 */
-/***/ (function(module, exports) {
-
-module.exports = require("ws");
-
-/***/ }),
-/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -319,7 +356,7 @@ module.exports = require("ws");
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.default = init;
+exports.default = listen;
 
 var _websocket = __webpack_require__(0);
 
@@ -335,15 +372,13 @@ var _jsonSocket2 = _interopRequireDefault(_jsonSocket);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var handleMsg = function handleMsg(data) {
+/*const handleMsg = (data) => {
 
 	console.log("handling message", data);
 
 	try {
-		var type = data.type,
-		    msg = data.msg;
-
-		var channel = "";
+		const { type, msg } = data;
+		let channel = "";
 
 		switch (type) {
 			case "message":
@@ -351,42 +386,52 @@ var handleMsg = function handleMsg(data) {
 					console.log("------------> seen an init message <-------------------------");
 					if (msg.payload && msg.payload.command === "init") {
 						console.log("*** SAVING DATA", JSON.stringify(msg.payload.data, null, 4));
-						(0, _datastore.savedata)(msg.payload.data.id, msg.payload.data);
+						savedata(msg.payload.data.id, msg.payload.data);
 					}
 				}
 				//channel = msg.payload.channel;
 				//delete (msg.payload.channel);
-				(0, _websocket.sendmessage)(msg); //channel, "message", msg);
+				sendmessage(msg);//channel, "message", msg);
 				break;
 
 			default:
 				//channel = msg.payload.channel;
 				//delete (msg.payload.channel);
-				(0, _websocket.sendmessage)(msg); //channel, type, msg)
+				sendmessage(msg);//channel, type, msg)
 		}
 	} catch (err) {
 		console.log("error parsing data", data);
 		console.log(err);
 	}
-};
+}*/
 
-function init() {
+function listen(sender) {
 
-	console.log("INITING THE SERVER!");
+	console.log("INITING THE IPC SERVER!");
 
 	var server = _net2.default.createServer();
 
 	server.on('connection', function (socket) {
 		//This is a standard net.Socket
 		socket = new _jsonSocket2.default(socket); //Now we've decorated the net.Socket to be a JsonSocket
-		socket.on('message', function (message) {
-			console.log("got a message!!");
-			handleMsg(message);
+		socket.on('message', function (data) {
+			console.log("ipc: got a message!!");
+			var type = data.type,
+			    msg = data.msg;
+
+			sender.sendmessage(data);
+			//handleMsg(message);
 		});
 	});
 
 	server.listen(8435, '0.0.0.0');
 }
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+module.exports = require("ws");
 
 /***/ }),
 /* 10 */

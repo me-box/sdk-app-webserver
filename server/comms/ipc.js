@@ -4,7 +4,7 @@ import { savedata } from '../datastore';
 import JsonSocket from 'json-socket';
 
 
-const handleMsg = (data) => {
+/*const handleMsg = (data) => {
 
 	console.log("handling message", data);
 
@@ -35,19 +35,21 @@ const handleMsg = (data) => {
 		console.log("error parsing data", data);
 		console.log(err);
 	}
-}
+}*/
 
-export default function init() {
+export default function listen(sender) {
 
-	console.log("INITING THE SERVER!");
+	console.log("INITING THE IPC SERVER!");
 
 	var server = net.createServer();
 
 	server.on('connection', function (socket) { //This is a standard net.Socket
 		socket = new JsonSocket(socket); //Now we've decorated the net.Socket to be a JsonSocket
-		socket.on('message', function (message) {
-			console.log("got a message!!");
-			handleMsg(message);
+		socket.on('message', function (data) {
+			console.log("ipc: got a message!!");
+			const { type, msg } = data;
+			sender.sendmessage(data);
+			//handleMsg(message);
 		});
 	});
 

@@ -1,17 +1,39 @@
-//import socket from 'socket.io';
 import * as WebSocket from "ws";
 
-let ws = null
+export default class Sender {
 
+  constructor(server) {
+
+    this.ws = null;
+
+    const wss = new WebSocket.Server({ server, path: "/ui/ws" });
+
+    //assume only ever one client!
+    wss.on("connection", (_ws) => {
+      this.ws = _ws;
+      console.log("created websocket!");
+    });
+  }
+
+  sendmessage(message) {
+    console.log("ws: sending message", message);
+    if (this.ws != null) {
+      try {
+        this.ws.send(message);
+      } catch (err) {
+        console.log("websocket, error sending", err);
+      }
+    } else {
+      console.log("not sending, ws not set up!");
+    }
+  }
+}
+
+/*
 //TODO: are we ok to use the same namespace for all apps? (i.e. currently 'databox')
 export default function init(namespace, server) {
   console.log("*************** initing websocket!! *************");
-  const wss = new WebSocket.Server({ server, path: "/ui/ws" });
 
-  wss.on("connection", (_ws) => {
-    ws = _ws;
-    console.log("created websocket!");
-  });
 
   console.log("done!");
   /*console.log("******** server, in init");
@@ -39,7 +61,7 @@ export default function init(namespace, server) {
       console.log("webserver seen socket disconnect!");
     });
 
-  });*/
+  });
 }
 
 
@@ -63,3 +85,4 @@ export function sendmessage(message) {
   //  console.log("not sending message, socket.io not setup");
   // }
 };
+*/

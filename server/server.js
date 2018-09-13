@@ -2,10 +2,10 @@ import https from 'https';
 import http from 'http';
 import express from 'express';
 import bodyparser from 'body-parser';
-import websocketinit from './comms/websocket';
-import ipcinit from './comms/ipc';
+import ipclisten from './comms/ipc';
 import { lookup } from './datastore';
 import databox from 'node-databox';
+import Sender from './comms/websocket';
 
 console.log("getting credentials");
 const credentials = databox.getHttpsCredentials();
@@ -35,10 +35,10 @@ if (process.argv.length > 2) {
 }
 
 console.log("initing websockets");
-websocketinit('databox', server);
-
+//websocketinit('databox', server);
+const sender = new Sender(server);
 console.log("initing ipc");
-ipcinit();
+ipclisten(sender);
 
 app.get('/', function (req, res) {
   res.render('index');
