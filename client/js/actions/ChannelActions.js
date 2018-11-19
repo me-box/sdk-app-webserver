@@ -20,7 +20,8 @@ export function fetchChannelId() {
 				} else {
 					console.log("successfully received channel ID!");
 					dispatch(networkSuccess(`successfully received channelID`));
-					init("databox", res.body.channelID, dispatch);
+					console.log("initing web socket!!");
+					init(dispatch);
 				}
 			});
 	}
