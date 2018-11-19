@@ -11,7 +11,7 @@ export default class Sender {
     //assume only ever one client!
     wss.on("connection", (_ws) => {
       this.ws = _ws;
-      console.log("created websocket!");
+      console.log("******************* created websocket!");
     });
   }
 

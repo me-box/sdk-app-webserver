@@ -1,7 +1,7 @@
 //import io from 'socket.io-client';
 import { newMessage } from '../actions/AppActions';
 
-export default function init(namespace, appId, dispatch) {
+export default function init(dispatch) {
 
   //deal with the reverse proxying of container manager by making socket.io path relative
   let pathname = "";
@@ -16,12 +16,12 @@ export default function init(namespace, appId, dispatch) {
 
   console.log("new version of sdk-webserver, creating websocket!");
 
-  console.log(`initing socket with /${namespace} and path ${pathname}/ui/socket.io`);
+  console.log(`** initing socket with wss://${window.location.host}${pathname}/ui/ws`);
 
-  let socket = new WebSocket(`wss://${window.location.host}${pathname}/ui/ws`);
+  const socket = new WebSocket(`wss://${window.location.host}${pathname}/ui/ws`);
 
   socket.onopen = function (evt) {
-    console.log(`successfully connected to server websocket`);
+    console.log(`----> successfully connected to server websocket`);
   };
 
   socket.onclose = function (evt) {

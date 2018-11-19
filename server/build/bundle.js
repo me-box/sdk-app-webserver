@@ -97,7 +97,7 @@ var Sender = function () {
     //assume only ever one client!
     wss.on("connection", function (_ws) {
       _this.ws = _ws;
-      console.log("created websocket!");
+      console.log("******************* created websocket!");
     });
   }
 
