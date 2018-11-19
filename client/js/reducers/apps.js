@@ -21,7 +21,7 @@ const addGaugeData = (state, action) => {
 }
 
 const append = (state = { data: [] }, action) => {
-	const { options, values } = action.data;
+	const { options = {}, values } = action.data;
 	const { view, sourceId, id, name } = action;
 
 	//return (Object.assign({}, ...state, {data: [...state.data || [], values], options: options, view:action.view, sourceId: action.sourceId, id: action.id, name: action.name}));
@@ -39,7 +39,15 @@ const append = (state = { data: [] }, action) => {
 
 const replace = (state = { data: {} }, action) => {
 	const { options, values } = action.data;
-	return (Object.assign({}, ...state, { data: values, options: options, view: action.view, sourceId: action.sourceId, id: action.id, name: action.name }));
+	return {
+		...state,
+		data: values,
+		options: options,
+		view: action.view,
+		sourceId: action.sourceId,
+		id: action.id,
+		name: action.name
+	};
 }
 
 const gauge = (state = { data: [], min: 999999, max: -999999 }, action) => {
@@ -49,7 +57,8 @@ const gauge = (state = { data: [], min: 999999, max: -999999 }, action) => {
 			const { values, options } = action.data;
 
 			if (values.type === "data") {
-				return Object.assign({}, ...state, {
+				return {
+					...state,
 					data: addGaugeData(state, action),
 					options: options,
 					view: action.view,
@@ -58,7 +67,7 @@ const gauge = (state = { data: [], min: 999999, max: -999999 }, action) => {
 					name: action.name,
 					min: Math.min(Number(values.x), state.min),
 					max: Math.max(Number(values.x), state.max),
-				});
+				};
 			}
 			return state;
 
@@ -66,16 +75,6 @@ const gauge = (state = { data: [], min: 999999, max: -999999 }, action) => {
 			return state;
 	}
 }
-
-const indexFor = (data, sourceId) => {
-	for (let i = 0; i < data.length; i++) {
-		if (data[i].sourceId === sourceId)
-			return i;
-	}
-	return -1;
-}
-
-
 
 const flatten = (layout) => {
 	return layout.reduce((acc, row) => {
@@ -97,31 +96,41 @@ const purge = (state, action) => {
 		return state;
 	}
 
-	return Object.assign({}, state[action.id], {
+	return {
+		...state[action.id],
 		[action.id]: Object.keys(state[action.id]).reduce((acc, srckey) => {
 			if (sources.indexOf(srckey) != -1) {
 				acc[srckey] = state[action.id][srckey]; //copy across!
 			}
 			return acc;
 		}, {})
-	});
+	};
 }
 
 const insert = (state, action) => {
+
 	const currentdata = state[action.id] || {};
-	return Object.assign({}, currentdata, { [action.sourceId]: addData(currentdata[action.sourceId], action) });
+
+	return {
+		...currentdata,
+		[action.sourceId]: addData(currentdata[action.sourceId], action)
+	}
 }
 
 const addData = (currentdata, action) => {
+
+	console.log("in add data with data", action.data, " and view ", action.view);
 
 	if (action.view === "gauge") {
 		return gauge(currentdata, action);
 	}
 	else if (["list", "text", "html", "uibuilder"].indexOf(action.view) !== -1) {
+		console.log("calling replace");
 		currentdata = currentdata || {};
 		return replace(currentdata, action);
 	}
 	else {
+		console.log("calling append!!");
 		currentdata = currentdata || {};
 		return append(currentdata, action);
 	}
@@ -142,14 +151,12 @@ export default function apps(state = {}, action) {
 				return acc;
 			}, {})
 
-
 		case APP_MESSAGE:
 
-
-			return Object.assign({}, state, {
+			return {
+				...state,
 				[action.id]: insert(purge(state, action), action),
-			});
-
+			};
 
 		default:
 			return state;

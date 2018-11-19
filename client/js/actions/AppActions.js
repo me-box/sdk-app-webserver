@@ -58,6 +58,8 @@ export function newMessage(msg) {
     const { id, name, view, data = {} } = payload;
 
 
+    console.log("have source id", sourceId, " and payload ", payload);
+
     if (!inited[id]) {
       inited[id] = true;
       dispatch(init(id));
@@ -82,6 +84,15 @@ export function newMessage(msg) {
         sourceId,
       });
     }
+
+    console.log("dispatchin app message", {
+      type: APP_MESSAGE,
+      id,
+      sourceId,
+      name,
+      view,
+      data,
+    });
 
     dispatch({
       type: APP_MESSAGE,

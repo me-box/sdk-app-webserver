@@ -16,7 +16,7 @@ export default function init(dispatch) {
 
   console.log("new version of sdk-webserver, creating websocket!");
 
-  console.log(`** initing socket with wss://${window.location.host}${pathname}/ui/ws`);
+  console.log(`**---> initing socket with wss://${window.location.host}${pathname}/ui/ws`);
 
   const socket = new WebSocket(`wss://${window.location.host}${pathname}/ui/ws`);
 
@@ -34,7 +34,7 @@ export default function init(dispatch) {
   };
 
   socket.onmessage = (function (evt) {
-    console.log("received data", JSON.parse(evt.data));
+    console.log("[.] received data", JSON.parse(evt.data));
     dispatch(newMessage(evt.data));
   });
 
