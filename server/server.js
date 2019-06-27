@@ -1,7 +1,5 @@
 import https from 'https';
-import http from 'http';
 import express from 'express';
-import bodyparser from 'body-parser';
 import ipclisten from './comms/ipc';
 import { lookup } from './datastore';
 import databox from 'node-databox';
@@ -9,7 +7,7 @@ import Sender from './comms/websocket';
 
 console.log("getting credentials");
 const credentials = databox.getHttpsCredentials();
-console.log("got credentials", credentials);
+console.log("got credentials");
 const app = express();
 
 

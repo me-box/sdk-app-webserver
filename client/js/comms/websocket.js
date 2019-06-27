@@ -14,10 +14,6 @@ export default function init(dispatch) {
     }
   }
 
-  console.log("19nov new version of sdk-webserver, creating websocket!");
-
-  console.log(`**---> initing socket with wss://${window.location.host}${pathname}/ui/ws`);
-
   const socket = new WebSocket(`wss://${window.location.host}${pathname}/ui/ws`);
 
   socket.onopen = function (evt) {

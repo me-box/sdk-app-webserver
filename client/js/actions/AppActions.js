@@ -13,6 +13,7 @@ export function appRemoved(appId) {
 }
 
 export function init(id) {
+  console.log("ok calling init on behalf of", id);
 
   return function (dispatch, getState) {
 
@@ -85,7 +86,7 @@ export function newMessage(msg) {
       });
     }
 
-    console.log("dispatchin app message", {
+    console.log("dispatching app message", {
       type: APP_MESSAGE,
       id,
       sourceId,

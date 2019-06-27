@@ -38,6 +38,7 @@ class AppContent extends Component {
 
 	componentDidMount() {
 		this.props.dispatch(fetchChannelId());
+		this.props.dispatch(init("companionapp"));
 		window.addEventListener('resize', this._handleResize);
 	}
 
@@ -54,8 +55,6 @@ class AppContent extends Component {
 
 		const totalrows = layout ? Object.keys(layout).length : 1;
 		const APPCONTAINERHEIGHT = (height / totalrows);
-
-
 
 		const applist = Object.keys(apps).map((appkey, i) => {
 

@@ -46,9 +46,15 @@ export default function listen(sender) {
 	server.on('connection', function (socket) { //This is a standard net.Socket
 		socket = new JsonSocket(socket); //Now we've decorated the net.Socket to be a JsonSocket
 		socket.on('message', function (data) {
-			console.log("ipc: got a message!!");
 			const { type, msg } = data;
 			try {
+				if (type === "control") {
+					console.log("------------> seen an init message <-------------------------");
+					if (msg.payload && msg.payload.command === "init") {
+						console.log("*** SAVING DATA", JSON.stringify(msg.payload.data, null, 4));
+						savedata(msg.payload.data.id, msg.payload.data);
+					}
+				}
 				sender.sendmessage(JSON.stringify(msg));
 			} catch (err) {
 				console.log("error stringiying msg", msg)
