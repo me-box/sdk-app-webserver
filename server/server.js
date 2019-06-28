@@ -6,7 +6,7 @@ import databox from 'node-databox';
 import Sender from './comms/websocket';
 
 console.log("getting credentials");
-const credentials = databox.getHttpsCredentials();
+const credentials = databox.GetHttpsCredentials();
 console.log("got credentials");
 const app = express();
 
